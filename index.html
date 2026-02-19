@@ -3,683 +3,279 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>12시간 AI 강의 커리큘럼 생성기</title>
-  <meta name="description" content="입력만 하면 12시간짜리 AI 강의 커리큘럼(세션별 목표/실습/산출물)을 자동 생성합니다." />
+  <title>유치원/어린이집 AI 커리큘럼 & 슬라이드 메이커</title>
+  <meta name="description" content="연령/주제/기간을 선택하면 유치원·어린이집 수업 커리큘럼과 수업용 슬라이드 초안을 자동으로 생성합니다." />
   <meta name="google-adsense-account" content="ca-pub-4845595532179393" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4845595532179393" crossorigin="anonymous"></script>
   <style>
     :root{
-      --bg:#0b0f19;
+      --bg:#0c1324;
+      --bg2:#111a30;
       --card:rgba(255,255,255,.08);
-      --stroke:rgba(255,255,255,.14);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.55);
-      --accent:#22d3ee;
-      --accent2:#7c3aed;
-      --shadow:0 18px 60px rgba(0,0,0,.45);
-      --radius:20px;
+      --stroke:rgba(255,255,255,.16);
+      --text:rgba(255,255,255,.95);
+      --muted:rgba(255,255,255,.72);
+      --muted2:rgba(255,255,255,.56);
+      --accent:#2dd4bf;
+      --accent2:#60a5fa;
+      --danger:#f87171;
+      --ok:#34d399;
+      --radius:18px;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
     }
     *{box-sizing:border-box}
     body{
-      margin:0; min-height:100vh;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo","Noto Sans KR", Segoe UI, Roboto, "Malgun Gothic", sans-serif;
+      margin:0;
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo","Noto Sans KR", Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 500px at 15% 10%, rgba(124,58,237,.35), transparent 60%),
-        radial-gradient(900px 500px at 85% 25%, rgba(34,211,238,.25), transparent 60%),
-        radial-gradient(900px 700px at 50% 95%, rgba(255,255,255,.06), transparent 65%),
-        var(--bg);
-      padding:26px 12px 60px;
-    }
-    .wrap{ width:min(1100px, 94vw); margin:0 auto; display:grid; gap:14px;}
-    .top{ display:flex; gap:10px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; padding: 2px 2px 8px;}
-    h1{ margin:0; font-size: clamp(22px, 3.5vw, 36px); letter-spacing:-0.03em;}
-    .sub{ margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.6;}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:10px 14px; border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05); border-radius:999px;
-      color:var(--muted); font-size:13px;
-    }
-    .themeToggle{
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.05);
-      color:var(--text);
-      border-radius:999px;
-      padding:10px 14px;
-      font-size:13px;
-      font-weight:700;
-      cursor:pointer;
-    }
-    .themeToggle:hover{ background: rgba(255,255,255,.10); }
-    .grid{ display:grid; grid-template-columns: 1fr 1.25fr; gap:14px; align-items:start;}
-    @media (max-width: 920px){ .grid{ grid-template-columns: 1fr; } }
-
-    .card{
-      border:1px solid var(--stroke);
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow:hidden;
-    }
-    .card .hd{ padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.10);}
-    .card .bd{ padding:16px 18px 18px; }
-
-    label{ display:block; font-size:12px; color:var(--muted2); margin-bottom:6px;}
-    input, select, textarea{
-      width:100%;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.14);
-      color:var(--text);
-      border-radius:14px;
-      padding:12px 12px;
-      outline:none;
-      transition: border-color .12s ease, background .12s ease;
-      font-size:14px;
-    }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(34,211,238,.45);
-      background: rgba(0,0,0,.22);
-    }
-    textarea{ min-height: 90px; resize: vertical; line-height:1.5; }
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    @media (max-width: 520px){ .row{ grid-template-columns: 1fr; } }
-
-    .btnRow{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;}
-    button{
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      color:var(--text);
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:800;
-      font-size:14px;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease, filter .12s ease;
-      display:inline-flex; align-items:center; gap:10px;
-      user-select:none;
-    }
-    button:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.26); background: rgba(255,255,255,.10); }
-    button.primary{
-      border:none;
-      color:#071018;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 16px 40px rgba(124,58,237,.22);
-    }
-    button.primary:hover{ filter: brightness(1.03); }
-    button:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
-
-    .meta{
-      display:flex; flex-wrap:wrap; gap:8px;
-      padding: 12px 18px 0;
-      color: var(--muted);
-      font-size:12px;
-    }
-    .tag{
-      padding:7px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.12);
-    }
-
-    .out{
-      padding: 12px 18px 18px;
-      display:grid;
-      gap: 12px;
-    }
-
-    .sectionTitle{
-      margin: 0;
-      font-size: 15px;
-      letter-spacing:-0.02em;
-    }
-    .small{ color: var(--muted2); font-size:12px; line-height:1.6; margin:6px 0 0;}
-    .schedule{
-      display:grid; gap:10px;
-    }
-    details{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.14);
-      border-radius: 16px;
-      overflow:hidden;
-    }
-    summary{
-      cursor:pointer;
-      padding: 12px 14px;
-      list-style:none;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    summary::-webkit-details-marker{ display:none; }
-    .sumLeft{ display:flex; flex-direction:column; gap:2px;}
-    .sumTop{ display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;}
-    .time{
-      font-weight:900; letter-spacing:-0.02em;
-      padding: 6px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      font-size:12px;
-    }
-    .title{ font-weight:900; letter-spacing:-0.02em; }
-    .type{
-      color: var(--muted2);
-      font-size:12px;
-    }
-    .body{
-      padding: 0 14px 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-      display:grid;
-      gap: 10px;
-    }
-    .cols{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 720px){ .cols{ grid-template-columns: 1fr; } }
-    .box{
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.04);
-    }
-    .box b{ color: var(--text); }
-    ul{ margin: 8px 0 0 18px; padding:0; }
-    .footer{
-      margin-top: 10px;
-      color: var(--muted2);
-      font-size: 12px;
-      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;
-      padding: 8px 2px;
-    }
-    .linkBtn{
-      border:0;
-      background: transparent;
-      color: rgba(255,255,255,.75);
-      cursor:pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      padding:0;
-      font: inherit;
-    }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .warn{
-      color: rgba(255,255,255,.75);
-      font-size: 12px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px dashed rgba(255,255,255,.22);
-      background: rgba(0,0,0,.12);
-    }
-    .formStatus{
-      margin-top:10px;
-      font-size:13px;
-      color: var(--muted);
-    }
-    .formStatus.error{ color:#fca5a5; }
-    .rpsGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      align-items:start;
-    }
-    @media (max-width: 840px){ .rpsGrid{ grid-template-columns: 1fr; } }
-    .rpsCam{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:14px;
-      background: rgba(0,0,0,.18);
-      padding:10px;
-      min-height: 256px;
-      display:grid;
-      place-items:center;
-      color: var(--muted);
-      text-align:center;
-      font-size:13px;
-    }
-    .rpsCam canvas,
-    .rpsCam video{
-      width:min(100%, 320px);
-      height:auto;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.18);
-      display:block;
-    }
-    .rpsBox{
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:14px;
-      background: rgba(0,0,0,.14);
-      padding:12px;
-      display:grid;
-      gap:10px;
-    }
-    .rpsNow{
-      font-size:16px;
-      font-weight:800;
-      letter-spacing:-0.01em;
-    }
-    .rpsResult{
-      font-size:15px;
-      color: var(--muted);
-      line-height:1.5;
-    }
-    .rpsScore{
-      display:grid;
-      gap:8px;
-    }
-    .rpsRow{
-      display:grid;
-      grid-template-columns: 56px 1fr 44px;
-      gap:8px;
-      align-items:center;
-      font-size:12px;
-      color: var(--muted);
-    }
-    .rpsBar{
-      height:7px;
-      border-radius:999px;
-      background: rgba(255,255,255,.12);
-      overflow:hidden;
-    }
-    .rpsFill{
-      height:100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      width:0%;
-      transition: width .12s linear;
-    }
-    body[data-theme="light"] .rpsCam,
-    body[data-theme="light"] .rpsBox{ background: rgba(255,255,255,.78); border-color: rgba(15,23,42,.16); }
-    body[data-theme="light"] .rpsBar{ background: rgba(15,23,42,.12); }
-    .commentsCard{
-      background: linear-gradient(160deg, rgba(8,12,24,.92), rgba(12,18,34,.92));
-      border: 1px solid rgba(255,255,255,.16);
-    }
-    .commentsCard .hd{ border-bottom:1px solid rgba(255,255,255,.14); }
-    .commentsCard .pill{
-      color: rgba(255,255,255,.94);
-      border-color: rgba(255,255,255,.22);
-      background: rgba(255,255,255,.08);
-    }
-    .commentsCard .sub,
-    .commentsCard noscript,
-    .commentsCard noscript a{
-      color: rgba(255,255,255,.90);
-    }
-    #disqus_thread{
-      min-height: 180px;
-      padding: 10px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color:#fff;
-      color-scheme: dark;
-    }
-    body[data-theme="light"] .commentsCard{
-      background: linear-gradient(160deg, #0f172a, #111827);
-      border-color: rgba(255,255,255,.20);
-    }
-    body[data-theme="light"] .formStatus.error{ color:#dc2626; }
-    .hidden{ display:none; }
-    .guide{
-      display:grid;
-      gap:10px;
-    }
-    .guideItem{
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      background: rgba(0,0,0,.12);
-      padding:12px;
-    }
-    .guideItem h3{
-      margin:0 0 6px;
-      font-size:15px;
-      letter-spacing:-0.02em;
-    }
-    .guideItem p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
-    }
-    .siteFooter{
-      width:min(1100px, 94vw);
-      margin:14px auto 0;
-      border-top:1px solid var(--stroke);
-      padding-top:12px;
-      display:grid;
-      gap:8px;
-      color:var(--muted2);
-      font-size:12px;
-    }
-    .siteFooter .links{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-    .siteFooter a{
-      color:var(--muted);
-      text-decoration:underline;
-      text-underline-offset:3px;
-    }
-    .faq{
-      display:grid;
-      gap:10px;
-    }
-    .faq details{
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      background: rgba(0,0,0,.12);
-    }
-    .faq summary{
-      padding:12px 14px;
-      font-weight:700;
-      color:var(--text);
-    }
-    .faq .answer{
-      padding:0 14px 14px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.6;
+        radial-gradient(900px 560px at 15% 8%, rgba(45,212,191,.25), transparent 60%),
+        radial-gradient(760px 460px at 86% 18%, rgba(96,165,250,.22), transparent 62%),
+        linear-gradient(145deg, var(--bg), var(--bg2));
+      padding:24px 12px 56px;
     }
     body[data-theme="light"]{
-      --bg:#f3f6fb;
+      --bg:#f3f7ff;
+      --bg2:#eef4fc;
       --card:rgba(255,255,255,.86);
-      --stroke:rgba(15,23,42,.16);
-      --text:rgba(15,23,42,.94);
-      --muted:rgba(30,41,59,.76);
-      --muted2:rgba(30,41,59,.60);
+      --stroke:rgba(15,23,42,.15);
+      --text:rgba(15,23,42,.95);
+      --muted:rgba(30,41,59,.78);
+      --muted2:rgba(30,41,59,.62);
       --shadow:0 16px 42px rgba(15,23,42,.12);
-
       background:
-        radial-gradient(900px 500px at 15% 10%, rgba(14,165,233,.16), transparent 62%),
-        radial-gradient(900px 500px at 85% 25%, rgba(16,185,129,.14), transparent 62%),
-        radial-gradient(900px 700px at 50% 95%, rgba(15,23,42,.05), transparent 65%),
-        var(--bg);
+        radial-gradient(900px 560px at 15% 8%, rgba(45,212,191,.16), transparent 60%),
+        radial-gradient(760px 460px at 86% 18%, rgba(96,165,250,.14), transparent 62%),
+        linear-gradient(145deg, var(--bg), var(--bg2));
     }
-    body[data-theme="light"] .card .hd{ border-bottom:1px solid rgba(15,23,42,.10); }
+    .wrap{width:min(1120px,94vw);margin:0 auto;display:grid;gap:14px}
+    .top{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+    h1{margin:0;font-size:clamp(22px,3.3vw,38px);letter-spacing:-.03em}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.6}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border:1px solid var(--stroke);border-radius:999px;background:rgba(255,255,255,.05);font-size:12px;color:var(--muted)}
+    .themeBtn{border:1px solid var(--stroke);background:rgba(255,255,255,.08);color:var(--text);padding:10px 14px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:700}
+
+    .grid{display:grid;grid-template-columns:1fr 1.25fr;gap:14px;align-items:start}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+    .card{border:1px solid var(--stroke);background:var(--card);backdrop-filter:blur(10px);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .hd{padding:16px 18px 12px;border-bottom:1px solid var(--stroke)}
+    .bd{padding:16px 18px 18px}
+
+    label{display:block;font-size:12px;color:var(--muted2);margin-bottom:6px}
+    input,select,textarea{
+      width:100%;border:1px solid var(--stroke);border-radius:12px;
+      background:rgba(0,0,0,.14);color:var(--text);padding:11px 12px;font-size:14px;outline:none;
+    }
     body[data-theme="light"] input,
     body[data-theme="light"] select,
-    body[data-theme="light"] textarea{
-      border:1px solid rgba(15,23,42,.18);
-      background: rgba(255,255,255,.74);
+    body[data-theme="light"] textarea{background:rgba(255,255,255,.9)}
+    textarea{min-height:76px;resize:vertical;line-height:1.55}
+
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media (max-width:720px){.row2,.row3{grid-template-columns:1fr}}
+
+    .checkRow{display:flex;gap:14px;flex-wrap:wrap;padding-top:4px}
+    .checkRow label{display:flex;align-items:center;gap:7px;margin:0;color:var(--muted);font-size:13px}
+    .checkRow input{width:auto}
+
+    .btnRow{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{
+      border:1px solid var(--stroke);background:rgba(255,255,255,.08);color:var(--text);
+      border-radius:12px;padding:11px 14px;font-weight:800;font-size:14px;cursor:pointer
     }
-    body[data-theme="light"] input:focus,
-    body[data-theme="light"] select:focus,
-    body[data-theme="light"] textarea:focus{
-      border-color: rgba(14,165,233,.55);
-      background: rgba(255,255,255,.95);
-    }
-    body[data-theme="light"] button{ border:1px solid rgba(15,23,42,.18); background: rgba(15,23,42,.04); }
-    body[data-theme="light"] button:hover{ border-color: rgba(15,23,42,.30); background: rgba(15,23,42,.08); }
-    body[data-theme="light"] .tag,
-    body[data-theme="light"] details,
-    body[data-theme="light"] .box,
-    body[data-theme="light"] .warn{ background: rgba(255,255,255,.72); }
-    body[data-theme="light"] .time{ background: rgba(15,23,42,.06); border:1px solid rgba(15,23,42,.15); }
-    body[data-theme="light"] .linkBtn{ color: rgba(15,23,42,.80); }
-    @media print{
-      body{ background:white; color:black; }
-      .card, details{ box-shadow:none; backdrop-filter:none; }
-      .btnRow, .top .pill, .footer, .meta{ display:none !important; }
-      .card{ background:white; border:1px solid #ddd; }
-      details{ border:1px solid #ddd; background:white; }
-      .box{ border:1px solid #eee; background:white; }
-      .time{ border:1px solid #ddd; background:#f7f7f7; }
-      .warn{ border:1px dashed #aaa; background:#fff; }
-    }
+    button.primary{border:none;color:#042028;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    button:disabled{opacity:.55;cursor:not-allowed}
+
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+    .tag{padding:6px 10px;border:1px solid var(--stroke);border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.05)}
+
+    .dayCard{border:1px solid var(--stroke);border-radius:14px;background:rgba(0,0,0,.14);padding:12px;display:grid;gap:10px;margin-top:10px}
+    body[data-theme="light"] .dayCard{background:rgba(255,255,255,.75)}
+    .dayTitle{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .dayTitle b{font-size:15px}
+    .tiny{font-size:12px;color:var(--muted2)}
+    .box{border:1px solid var(--stroke);border-radius:12px;padding:10px;background:rgba(255,255,255,.04)}
+    .box h4{margin:0 0 6px;font-size:13px}
+    .box p,.box li{margin:0;color:var(--muted);font-size:13px;line-height:1.58}
+    .box ul{margin:0;padding-left:18px}
+
+    .slideCard{border:1px solid var(--stroke);border-radius:14px;background:rgba(0,0,0,.14);padding:12px;display:grid;gap:8px;margin-top:10px}
+    .slideCard h4{margin:0;font-size:14px}
+
+    .warn{margin-top:10px;padding:10px 12px;border:1px dashed var(--stroke);border-radius:12px;color:var(--muted);font-size:12px;background:rgba(0,0,0,.12)}
+    .ok{color:var(--ok)} .danger{color:var(--danger)}
+
+    .siteFooter{width:min(1120px,94vw);margin:12px auto 0;border-top:1px solid var(--stroke);padding-top:10px;display:grid;gap:7px;font-size:12px;color:var(--muted2)}
+    .links{display:flex;flex-wrap:wrap;gap:10px}
+    .links a{color:var(--muted);text-underline-offset:3px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
       <div>
-        <h1>12시간 AI 강의 커리큘럼 생성기</h1>
-        <p class="sub">대상/목표/툴만 넣으면, <b>시간표 + 세션별 목표·실습·산출물</b>까지 자동으로 뽑아줘요.</p>
+        <h1>유아교사 AI 커리큘럼 · 수업안 · 슬라이드 초안 생성기</h1>
+        <p class="sub">연령/주제/기간을 선택하면 <b>주간 커리큘럼 + 활동별 수업안 + 발표용 슬라이드 초안</b>까지 한 번에 생성합니다.</p>
       </div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="pill">🧩 30분 단위 · 총 12시간 · 출력/복사/인쇄 지원</div>
-        <button class="themeToggle" id="themeToggle" type="button" aria-label="테마 전환">🌙 다크모드</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div class="pill">👶 유치원/어린이집 특화 · 교사용 실무형</div>
+        <button class="themeBtn" id="themeToggle" type="button">🌙 다크모드</button>
       </div>
     </div>
 
     <div class="grid">
-      <!-- 입력 패널 -->
       <section class="card">
         <div class="hd">
-          <div class="pill">✍️ 입력</div>
-          <p class="sub" style="margin-top:8px;">아래 값을 채울수록 결과가 더 “현업형”으로 나와요.</p>
+          <div class="pill">1) 턱턱턱 선택 입력</div>
+          <p class="sub" style="margin-top:8px;">최소 항목만 고르면 자동으로 주간 계획과 활동안을 생성합니다.</p>
         </div>
-
         <div class="bd">
-          <div class="row">
+          <div class="row2">
             <div>
-              <label for="courseTitle">강의 제목</label>
-              <input id="courseTitle" placeholder="예: 비전공자를 위한 생성형 AI 실무 12시간" value="AI 실무 올인원 12시간 (기초→실습→배포)" />
+              <label for="age">대상 연령</label>
+              <select id="age">
+                <option>만 3세</option>
+                <option>만 4세</option>
+                <option selected>만 5세</option>
+              </select>
             </div>
             <div>
-              <label for="audience">대상</label>
-              <select id="audience">
-                <option>비전공자/입문자</option>
-                <option>직장인(비개발)</option>
-                <option>주니어 개발자</option>
-                <option>마케터/콘텐츠 크리에이터</option>
-                <option>PM/기획자</option>
-                <option>데이터 분석 입문</option>
+              <label for="period">기간</label>
+              <select id="period">
+                <option value="day">1일</option>
+                <option value="week" selected>1주(5일)</option>
               </select>
             </div>
           </div>
 
-          <div class="row" style="margin-top:10px;">
+          <div style="margin-top:10px">
+            <label for="topic">생활 주제</label>
+            <input id="topic" value="봄과 곤충" placeholder="예: 가족, 교통, 계절, 감정, 동물" />
+          </div>
+
+          <div class="row3" style="margin-top:10px">
             <div>
-              <label for="level">난이도</label>
-              <select id="level">
-                <option value="beginner">입문</option>
-                <option value="mixed" selected>입문→중급 믹스</option>
-                <option value="intermediate">중급</option>
+              <label for="focusArea">강조 영역</label>
+              <select id="focusArea">
+                <option>언어</option>
+                <option selected>미술</option>
+                <option>신체</option>
+                <option>과학</option>
+                <option>사회</option>
+                <option>음악</option>
+                <option>역할놀이</option>
               </select>
             </div>
             <div>
-              <label for="format">운영 형태</label>
-              <select id="format">
-                <option value="offline">오프라인(현장)</option>
-                <option value="online" selected>온라인(줌/라이브)</option>
-                <option value="hybrid">하이브리드</option>
+              <label for="materialLevel">준비물 난이도</label>
+              <select id="materialLevel">
+                <option selected>간단</option>
+                <option>보통</option>
+                <option>풍부</option>
+              </select>
+            </div>
+            <div>
+              <label for="slideType">슬라이드 유형</label>
+              <select id="slideType">
+                <option selected>놀이형</option>
+                <option>설명형</option>
+                <option>스토리형</option>
+                <option>퀴즈형</option>
               </select>
             </div>
           </div>
 
-          <div style="margin-top:10px;">
-            <label for="tools">사용 툴/스택 (콤마로 구분)</label>
-            <input id="tools" placeholder="예: ChatGPT, Claude, Notion, Zapier, Python, Colab, GitHub"
-                   value="ChatGPT, 프롬프트, Python(선택), Google Colab, 자동화(선택)" />
+          <div style="margin-top:10px">
+            <label>운영 환경</label>
+            <div class="checkRow">
+              <label><input type="checkbox" id="indoor" checked /> 실내</label>
+              <label><input type="checkbox" id="outdoor" checked /> 실외</label>
+              <label><input type="checkbox" id="safetyStrict" checked /> 안전 강조</label>
+            </div>
           </div>
 
-          <div style="margin-top:10px;">
-            <label for="goal">강의 목표(한 문단)</label>
-            <textarea id="goal" placeholder="예: 수강생이 생성형 AI로 업무 자동화를 1개 이상 완성하고, 간단한 MVP를 배포까지 경험한다.">수강생이 생성형 AI를 안전하고 똑똑하게 쓰는 방법을 익히고, 실습으로 “작동하는 결과물(업무 자동화 1개 + 미니 MVP 1개)”을 만들어 배포/공유까지 경험하도록 한다.</textarea>
+          <div style="margin-top:10px">
+            <label for="constraints">제약/기관 규칙</label>
+            <textarea id="constraints" placeholder="예: 알레르기 식품 제외, 실내 중심, 소음 큰 활동 제외">알레르기 식품 관련 활동 제외, 안전 수칙 안내를 매 활동마다 포함</textarea>
           </div>
 
-          <div style="margin-top:10px;">
-            <label for="domain">도메인/업종(선택)</label>
-            <input id="domain" placeholder="예: 이커머스, 교육, SaaS, 제조, 병원, 부동산 등" value="콘텐츠/업무 생산성" />
-          </div>
-
-          <div style="margin-top:10px;">
-            <label for="constraints">제약/요구사항(선택)</label>
-            <textarea id="constraints" placeholder="예: 노코드 위주, 개인정보/보안 강조, 코딩 최소화, 실습 과제는 3개 이하 등">코딩은 선택 과제(가능하면 노코드/저코드 우선). 개인정보/저작권/보안 가이드 필수 포함. 실습은 바로 업무에 쓰이는 형태로.</textarea>
+          <div style="margin-top:10px">
+            <label>생성 결과물</label>
+            <div class="checkRow">
+              <label><input type="checkbox" id="optCurriculum" checked /> 커리큘럼</label>
+              <label><input type="checkbox" id="optLesson" checked /> 수업안</label>
+              <label><input type="checkbox" id="optSlides" checked /> 슬라이드 초안</label>
+            </div>
           </div>
 
           <div class="btnRow">
-            <button class="primary" id="genBtn" type="button">⚡ 12시간 커리큘럼 생성</button>
+            <button class="primary" id="genBtn" type="button">⚡ 생성하기</button>
             <button id="copyBtn" type="button" disabled>📋 전체 복사</button>
             <button id="downloadBtn" type="button" disabled>⬇️ JSON 다운로드</button>
-            <button id="printBtn" type="button" disabled>🖨️ 인쇄/PDF</button>
-            <button id="resetBtn" type="button">🧹 초기화</button>
           </div>
 
-          <div class="warn" style="margin-top:12px;">
-            팁) “툴/목표/제약”을 구체적으로 넣을수록 세션별 실습이 더 날카롭게 나와요.
-          </div>
+          <div class="warn">개인정보 보호: 아동 실명/민감정보는 입력하지 마세요. 생성 결과는 교사가 최종 검토 후 사용하세요.</div>
         </div>
       </section>
 
-      <!-- 출력 패널 -->
       <section class="card">
         <div class="hd">
-          <div class="pill">📚 결과</div>
-          <p class="sub" style="margin-top:8px;">세션을 클릭하면 <b>목표·실습·산출물·체크포인트</b>가 펼쳐져요.</p>
+          <div class="pill">2) 생성 결과</div>
+          <p class="sub" style="margin-top:8px;">주간/일일 계획과 활동별 지도안, 슬라이드 초안을 카드 형태로 확인합니다.</p>
         </div>
+        <div class="bd">
+          <div class="tags" id="metaTags"></div>
+          <h2 style="margin:0;font-size:18px" id="outTitle">아직 생성된 결과가 없습니다</h2>
+          <p class="sub" id="outDesc">왼쪽에서 선택 후 생성 버튼을 눌러주세요.</p>
 
-        <div class="meta" id="metaTags"></div>
-
-        <div class="out">
-          <div>
-            <h2 class="sectionTitle" id="outTitle">아직 생성된 커리큘럼이 없어요</h2>
-            <p class="small" id="outDesc">왼쪽에서 입력 후 “커리큘럼 생성”을 눌러주세요.</p>
+          <div style="margin-top:10px">
+            <label for="slideTargetDay">슬라이드 초안 대상 일차</label>
+            <select id="slideTargetDay" disabled></select>
+            <div class="btnRow" style="margin-top:8px">
+              <button id="makeSlidesBtn" type="button" disabled>🧩 선택 일차 슬라이드 초안 만들기</button>
+            </div>
           </div>
 
-          <div class="schedule" id="schedule"></div>
-
-          <div class="footer">
-            <div>© <span id="year"></span> Curriculum Builder</div>
-            <button class="linkBtn" id="copyOneLine" type="button" disabled>한 줄 요약 복사</button>
-          </div>
+          <div id="curriculumOut"></div>
+          <div id="slidesOut"></div>
         </div>
       </section>
     </div>
 
     <section class="card">
       <div class="hd">
-        <div class="pill">📘 사이트 품질 가이드</div>
-        <p class="sub" style="margin-top:8px;">방문자가 실제로 도움이 되는 정보를 얻을 수 있도록 운영 원칙과 학습 가이드를 공개합니다.</p>
-      </div>
-      <div class="bd">
-        <div class="guide">
-          <div class="guideItem">
-            <h3>1) 콘텐츠 작성 원칙</h3>
-            <p>실무에서 바로 적용 가능한 예시와 절차 중심으로 작성합니다. 중복 페이지를 늘리기보다 하나의 문서를 지속적으로 업데이트해 정확도와 완성도를 높입니다.</p>
-          </div>
-          <div class="guideItem">
-            <h3>2) 학습자 관점 정보 구조</h3>
-            <p>입문자도 빠르게 이해할 수 있도록 목표, 준비물, 실습 절차, 결과물, 검증 체크리스트 순서로 정보를 제공합니다. 필요한 정보에 바로 접근할 수 있게 섹션별로 명확히 분리합니다.</p>
-          </div>
-          <div class="guideItem">
-            <h3>3) 실습 중심 품질 검증</h3>
-            <p>각 커리큘럼은 산출물 기준으로 검증합니다. 예: 자동화 1개, 미니 MVP 1개, 평가표 1개. “무엇을 배웠는지”보다 “무엇을 만들었는지”를 기준으로 품질을 평가합니다.</p>
-          </div>
-          <div class="guideItem">
-            <h3>4) 투명한 운영 정보</h3>
-            <p>사이트 소개, 문의 채널, 개인정보처리방침, 이용약관을 공개합니다. 사용자 문의 응답 및 콘텐츠 수정 기록을 남겨 운영 책임성을 강화합니다.</p>
-          </div>
-          <div class="guideItem">
-            <h3>5) 광고와 콘텐츠의 균형</h3>
-            <p>콘텐츠 자체 가치를 해치지 않는 범위에서만 광고를 운영합니다. 광고로 인해 본문 탐색이 어려워지지 않도록 가독성과 정보 전달을 우선합니다.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="hd">
-        <div class="pill">❓ 자주 묻는 질문</div>
-        <p class="sub" style="margin-top:8px;">서비스 목적과 사용 방법을 명확히 안내해 정보 탐색성을 높입니다.</p>
-      </div>
-      <div class="bd">
-        <div class="faq">
-          <details>
-            <summary>이 사이트는 어떤 사람에게 유용한가요?</summary>
-            <div class="answer">사내 교육 담당자, 프리랜서 강사, 실무형 AI 강의를 설계하려는 기획자에게 적합합니다. 대상/목표/도구를 입력하면 12시간 구성안을 빠르게 만들 수 있습니다.</div>
-          </details>
-          <details>
-            <summary>생성된 커리큘럼은 그대로 사용해도 되나요?</summary>
-            <div class="answer">초안 생성 도구이므로 최종 적용 전 반드시 교육 대상과 목적에 맞게 수정이 필요합니다. 특히 보안·개인정보·저작권 항목은 조직 정책에 맞게 검토해야 합니다.</div>
-          </details>
-          <details>
-            <summary>광고가 콘텐츠보다 더 많아지나요?</summary>
-            <div class="answer">아니요. 본 사이트는 콘텐츠 가독성과 정보 전달을 우선합니다. 광고는 콘텐츠 탐색을 방해하지 않는 범위에서 운영합니다.</div>
-          </details>
-          <details>
-            <summary>운영 정책은 어디서 확인하나요?</summary>
-            <div class="answer">하단 링크를 통해 사이트 소개, 개인정보처리방침, 이용약관, 문의 페이지를 확인할 수 있습니다.</div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="hd">
-        <div class="pill">🤝 제휴 문의</div>
-        <p class="sub" style="margin-top:8px;">간단히 남겨주시면 확인 후 연락드릴게요.</p>
+        <div class="pill">🤝 제휴/도입 문의</div>
+        <p class="sub" style="margin-top:8px;">기관 도입, 커스터마이징, API 연동 문의를 남겨주세요.</p>
       </div>
       <div class="bd">
         <form id="partnershipForm" action="https://formspree.io/f/mdaldrva" method="POST">
-          <div class="row">
+          <div class="row2">
             <div>
               <label for="partnerName">이름</label>
-              <input id="partnerName" name="name" type="text" placeholder="홍길동" required />
+              <input id="partnerName" name="name" type="text" required />
             </div>
             <div>
               <label for="partnerEmail">이메일</label>
-              <input id="partnerEmail" name="email" type="email" placeholder="name@company.com" required />
+              <input id="partnerEmail" name="email" type="email" required />
             </div>
           </div>
-          <div style="margin-top:10px;">
-            <label for="partnerCompany">회사/조직명</label>
-            <input id="partnerCompany" name="company" type="text" placeholder="회사 또는 팀 이름" />
-          </div>
-          <div style="margin-top:10px;">
+          <div style="margin-top:10px">
             <label for="partnerMessage">문의 내용</label>
-            <textarea id="partnerMessage" name="message" placeholder="제휴 목적, 협업 방식, 일정 등을 적어주세요." required></textarea>
+            <textarea id="partnerMessage" name="message" required></textarea>
           </div>
-          <input type="hidden" name="_subject" value="제휴 문의 접수" />
+          <input type="hidden" name="_subject" value="유아교사 AI 서비스 제휴 문의" />
           <div class="btnRow">
-            <button class="primary" id="partnerSubmitBtn" type="submit">📨 제휴 문의 보내기</button>
+            <button class="primary" id="partnerSubmitBtn" type="submit">📨 문의 보내기</button>
           </div>
-          <p class="formStatus hidden" id="partnerFormStatus" role="status" aria-live="polite"></p>
+          <p id="partnerFormStatus" class="sub" style="margin-top:8px"></p>
         </form>
       </div>
     </section>
-
-    <section class="card">
-      <div class="hd">
-        <div class="pill">✊ AI 가위바위보</div>
-        <p class="sub" style="margin-top:8px;">브레이크 타임용 아이스브레이커: 손동작을 인식해 AI와 한 판 할 수 있어요.</p>
-      </div>
-      <div class="bd">
-        <div class="rpsGrid">
-          <div>
-            <div class="rpsCam" id="rpsCamHost">카메라 시작 버튼을 누르면 인식이 시작됩니다.</div>
-            <div class="btnRow">
-              <button id="rpsStartBtn" type="button">🎥 카메라 시작</button>
-              <button id="rpsStopBtn" type="button" disabled>⏹️ 중지</button>
-            </div>
-          </div>
-          <div class="rpsBox">
-            <div class="rpsNow" id="rpsNow">현재 인식: -</div>
-            <div class="rpsResult" id="rpsResult">카메라를 시작한 뒤 손동작을 보여주세요.</div>
-            <div class="rpsScore" id="rpsScores"></div>
-            <button class="primary" id="rpsMatchBtn" type="button" disabled>🤖 AI와 승부 보기</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="card commentsCard">
-      <div class="hd">
-        <div class="pill">💬 댓글</div>
-        <p class="sub" style="margin-top:8px;">의견이나 질문을 남겨주세요.</p>
-      </div>
-      <div class="bd">
-        <div id="disqus_thread"></div>
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
-      </div>
-    </section>
   </div>
+
   <footer class="siteFooter">
     <div class="links">
       <a href="/about.html">사이트 소개</a>
@@ -688,19 +284,28 @@
       <a href="/contact.html">문의하기</a>
       <a href="/ads.txt">ads.txt</a>
     </div>
-    <div>운영 원칙: 독창적·실무형 콘텐츠 제공, 사용자 중심 탐색 구조, 광고와 콘텐츠의 균형 유지</div>
+    <div>운영 원칙: 아동 대상 안전·표현 가드레일, 교사 검토 기반 활용, 광고보다 교육 콘텐츠 우선</div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <script>
-    // ===== Utilities =====
     const $ = (id) => document.getElementById(id);
     const THEME_KEY = "curriculum_theme";
-    const yearEl = $("year");
-    yearEl.textContent = new Date().getFullYear();
 
-    function getInitialTheme(){
+    const areaBank = {
+      "언어":["그림책 함께 읽기","주제 단어 카드 놀이","이야기 순서 맞추기"],
+      "미술":["주제 콜라주 만들기","스탬프/찍기 활동","자연물 꾸미기"],
+      "신체":["동작 따라하기","균형 놀이","장애물 미니 코스"],
+      "과학":["관찰 기록하기","비교/분류 활동","간단 실험"],
+      "사회":["협동 규칙 놀이","역할 나눔 활동","감정 나누기"],
+      "음악":["리듬 따라하기","주제 노래 바꿔부르기","악기 탐색"],
+      "역할놀이":["상황극 놀이","가게/병원 역할놀이","인형극 구성"]
+    };
+
+    const secondaryAreas = ["언어","신체","과학","사회","음악","역할놀이","미술"];
+    const weekDays = ["월요일","화요일","수요일","목요일","금요일"];
+    let current = null;
+
+    function getTheme(){
       const saved = localStorage.getItem(THEME_KEY);
       if (saved === "dark" || saved === "light") return saved;
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -709,402 +314,94 @@
     function applyTheme(theme){
       document.body.dataset.theme = theme;
       localStorage.setItem(THEME_KEY, theme);
-      const isDark = theme === "dark";
-      const btn = $("themeToggle");
-      btn.textContent = isDark ? "🌙 다크모드" : "☀️ 화이트모드";
-      btn.setAttribute("aria-label", isDark ? "현재 다크모드, 화이트모드로 전환" : "현재 화이트모드, 다크모드로 전환");
+      $("themeToggle").textContent = theme === "dark" ? "🌙 다크모드" : "☀️ 화이트모드";
     }
 
-    function slugDate(){
-      const d = new Date();
-      const pad = (n) => String(n).padStart(2,"0");
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}`;
+    function pick(arr, idx){ return arr[idx % arr.length]; }
+
+    function getForm(){
+      return {
+        age: $("age").value,
+        period: $("period").value,
+        topic: $("topic").value.trim() || "생활 주제",
+        focusArea: $("focusArea").value,
+        materialLevel: $("materialLevel").value,
+        slideType: $("slideType").value,
+        indoor: $("indoor").checked,
+        outdoor: $("outdoor").checked,
+        safetyStrict: $("safetyStrict").checked,
+        constraints: $("constraints").value.trim(),
+        options: {
+          curriculum: $("optCurriculum").checked,
+          lesson: $("optLesson").checked,
+          slides: $("optSlides").checked
+        }
+      };
     }
 
-    function safeSplitComma(str){
-      return (str || "")
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean);
-    }
+    function buildDays(cfg){
+      const dayCount = cfg.period === "week" ? 5 : 1;
+      const days = [];
+      for (let i=0; i<dayCount; i++){
+        const dayName = cfg.period === "week" ? weekDays[i] : "오늘";
+        const secArea = pick(secondaryAreas.filter(a => a !== cfg.focusArea), i);
+        const activityA = pick(areaBank[cfg.focusArea], i);
+        const activityB = pick(areaBank[secArea], i+1);
 
-    function minutesToHHMM(min){
-      const h = Math.floor(min/60);
-      const m = min%60;
-      const pad = (n) => String(n).padStart(2,"0");
-      return `${pad(h)}:${pad(m)}`;
-    }
-
-    function buildTimeBlocks(totalMinutes=720, block=30, startAtMin=9*60){
-      // 총 12시간(720분)을 30분 단위로 나누되, 세션 설계는 아래 "sessionPlan" 기반
-      // startAtMin은 표시용(기본 09:00)
-      return { totalMinutes, block, startAtMin };
-    }
-
-    // ===== Curriculum Templates (난이도별) =====
-    function getSessionPlan(level){
-      // 12시간 = 720분
-      // 구성: 오프닝/기초/프롬프트/워크플로우/데이터/자동화/에이전트/프로덕트/배포/마무리
-      // 휴식: 10~15분 브레이크를 세션 사이에 자연스럽게 포함 (세션 타입으로 표기)
-      // 각 세션은 duration(분) 단위.
-      // 합이 720이 되도록 맞춤.
-      const base = [
-        { type:"강의", title:"오리엔테이션 & 목표 설정", duration:30 },
-        { type:"강의", title:"AI 리터러시: 생성형 AI가 ‘되는 일/안되는 일’", duration:45 },
-        { type:"실습", title:"프롬프트 기본기: 역할/맥락/형식/검증", duration:60 },
-        { type:"브레이크", title:"휴식", duration:15 },
-
-        { type:"실습", title:"업무 적용 1: 문서/메일/요약/회의록 자동화", duration:60 },
-        { type:"강의", title:"품질을 올리는 방법: 평가(리뷰)·체크리스트·버전 관리", duration:45 },
-        { type:"브레이크", title:"휴식", duration:15 },
-
-        { type:"실습", title:"데이터 다루기: CSV/표 기반 분석 & 인사이트 생성", duration:60 },
-        { type:"실습", title:"자동화 워크플로우: 입력→처리→출력(노코드/저코드)", duration:75 },
-        { type:"브레이크", title:"휴식", duration:15 },
-
-        { type:"강의", title:"AI 제품화: 문제정의→MVP 스펙→프롬프트/툴 설계", duration:60 },
-        { type:"실습", title:"미니 MVP 만들기: 챗봇/도우미/리뷰어 중 택1", duration:90 },
-        { type:"브레이크", title:"휴식", duration:15 },
-
-        { type:"강의", title:"배포/공유: 데모 시나리오, 운영 가이드, 리스크 체크", duration:45 },
-        { type:"실습", title:"발표 & 피드백: 1분 데모 + 개선 백로그 작성", duration:45 }
-      ];
-
-      const beginnerTweaks = [
-        // 초보자는 “코딩/자동화” 난이도를 낮추고, 프롬프트·업무문서 비중↑
-      ];
-
-      const intermediateTweaks = [
-        // 중급은 “데이터/자동화/에이전트/평가” 비중↑
-      ];
-
-      // 레벨별 제목/포커스 조금 변형
-      let plan = structuredClone(base);
-
-      if (level === "beginner") {
-        plan = plan.map(s => {
-          if (s.title.includes("데이터 다루기")) return { ...s, title:"데이터 다루기(입문): 표/CSV로 ‘질문 잘하기’" };
-          if (s.title.includes("자동화 워크플로우")) return { ...s, title:"자동화 워크플로우(입문): 템플릿으로 연결하기" , duration:60 };
-          if (s.title.includes("AI 제품화")) return { ...s, title:"제품화 기초: MVP 스펙을 1장으로 정리" , duration:50 };
-          return s;
-        });
-
-        // 시간 보정(총합 720 유지)
-        // 자동화 -15, 제품화 -10 => 남는 25를 “업무 적용 1”에 +15, “발표&피드백” +10
-        plan = plan.map(s => {
-          if (s.title.startsWith("업무 적용 1")) return { ...s, duration:75 };
-          if (s.title.startsWith("발표 & 피드백")) return { ...s, duration:55 };
-          return s;
-        });
-      }
-
-      if (level === "intermediate") {
-        plan = plan.map(s => {
-          if (s.title.includes("품질을 올리는 방법")) return { ...s, title:"평가/검증: 테스트 케이스, 자동 평가, 실패 유형", duration:60 };
-          if (s.title.includes("데이터 다루기")) return { ...s, title:"데이터+LLM: 정제→질문→요약→리포트 자동 생성", duration:75 };
-          if (s.title.includes("자동화 워크플로우")) return { ...s, title:"자동화 심화: 트리거/분기/로그/재시도 설계", duration:90 };
-          if (s.title.includes("미니 MVP 만들기")) return { ...s, title:"미니 MVP 만들기(심화): 평가·가드레일·프롬프트 버전관리 포함", duration:105 };
-          return s;
-        });
-        // 총합이 커지므로 일부 세션 줄이기
-        // +15 +15 +15 +15 = +60 증가 → 프롬프트 기본기 -15, 업무 적용 -15, 제품화 -15, 배포 -15
-        plan = plan.map(s => {
-          if (s.title.includes("프롬프트 기본기")) return { ...s, duration:45 };
-          if (s.title.startsWith("업무 적용 1")) return { ...s, duration:45 };
-          if (s.title.includes("AI 제품화")) return { ...s, duration:45 };
-          if (s.title.includes("배포/공유")) return { ...s, duration:30 };
-          return s;
-        });
-      }
-
-      // 마지막 검증: 합계 720 맞추기(안 맞으면 자동 보정)
-      const sum = plan.reduce((a, s) => a + s.duration, 0);
-      if (sum !== 720) {
-        const diff = 720 - sum;
-        // diff를 "발표 & 피드백"에 흡수
-        plan = plan.map(s => {
-          if (s.title.startsWith("발표 & 피드백")) return { ...s, duration: Math.max(30, s.duration + diff) };
-          return s;
-        });
-      }
-
-      return plan;
-    }
-
-    // ===== Content Generator =====
-    function generateSessionDetail(session, context){
-      const { audience, tools, goal, domain, constraints, level, format } = context;
-
-      const toolList = tools.length ? tools : ["ChatGPT"];
-      const toolHint = toolList.slice(0, 4).join(", ") + (toolList.length > 4 ? "…" : "");
-      const domainText = domain ? `(${domain})` : "";
-
-      const commonCheckpoints = [
-        "입력/출력 형식을 명확히 했는가?",
-        "검증(팩트체크/근거/예외처리)을 넣었는가?",
-        "재사용 가능한 템플릿/문서로 남겼는가?"
-      ];
-
-      const safety = [
-        "개인정보/기밀 데이터는 넣지 않기",
-        "저작권/출처 표기 가이드 확인",
-        "환각(그럴듯한 오답) 대비: 근거 요구/검증 루틴 적용"
-      ];
-
-      // 세션 타입별 기본 구조
-      let objectives = [];
-      let practice = [];
-      let deliverables = [];
-      let checkpoints = [...commonCheckpoints];
-
-      const title = session.title;
-
-      if (session.type === "브레이크") {
-        objectives = ["뇌 휴식", "다음 실습 준비", "질문 정리"];
-        practice = ["스트레칭/물 마시기", "막힌 부분 체크", "다음 세션 자료 열어두기"];
-        deliverables = ["질문 1~3개", "다음 실습 준비 완료"];
-        checkpoints = ["다음 세션 시작 전 환경(툴/계정/파일) 준비 완료"];
-        return { objectives, practice, deliverables, checkpoints, notes: "" };
-      }
-
-      if (title.includes("오리엔테이션")) {
-        objectives = [
-          `수강 목표를 “결과물 기준”으로 합의`,
-          `오늘 만들 산출물 2개(자동화 1개 + 미니 MVP 1개) 정의`,
-          `운영 방식(${format === "online" ? "온라인" : format === "offline" ? "오프라인" : "하이브리드"})에 맞는 진행 규칙 설정`
-        ];
-        practice = [
-          "개인 목표 1줄 작성 → 팀/강사와 공유",
-          "성공 기준(완료 정의) 체크리스트 만들기",
-          "실습용 폴더/노션 페이지/문서 템플릿 준비"
-        ];
-        deliverables = ["개인 목표 1줄", "성공 기준 체크리스트", "실습 저장소/폴더"];
-      }
-      else if (title.includes("AI 리터러시")) {
-        objectives = [
-          "생성형 AI의 강점/한계(환각, 최신성, 보안)를 이해",
-          "업무에서 안전하게 쓰는 규칙을 만든다",
-          `대상(${audience}) 관점에서 “바로 적용 가능한 유즈케이스” 3개 도출`
-        ];
-        practice = [
-          `유즈케이스 브레인스토밍 ${domainText}: 반복 업무/문서/결정 지원`,
-          "좋은 요청 vs 나쁜 요청 비교 실험",
-          "보안/저작권/출처 표기 룰 세팅"
-        ];
-        deliverables = ["유즈케이스 3개", "AI 사용 규칙 5줄", "금지/주의 데이터 목록"];
-        checkpoints.push(...safety);
-      }
-      else if (title.includes("프롬프트")) {
-        objectives = [
-          "프롬프트 구조(역할/맥락/제약/출력형식/검증)를 체득",
-          "자주 쓰는 템플릿 3종을 만든다",
-          `사용 툴(${toolHint}) 기준으로 “재사용 프롬프트”를 저장하는 방법 정리`
-        ];
-        practice = [
-          "템플릿 1: 요약/정리(표/불릿/액션아이템)",
-          "템플릿 2: 초안 작성(메일/보고서/기획서) + 톤/길이 제어",
-          "템플릿 3: 검증/반박(가정 찾기, 오류 가능성, 근거 요구)"
-        ];
-        deliverables = ["프롬프트 템플릿 3종", "나만의 톤 가이드", "검증 체크리스트"];
-      }
-      else if (title.includes("업무 적용 1")) {
-        objectives = [
-          "업무 산출물(문서/메일/회의록)을 ‘반자동 파이프라인’으로 만든다",
-          "입력(원문)→처리(요약/정리)→출력(템플릿) 흐름을 고정",
-          "실제 내 업무에 적용 가능한 형태로 저장/공유"
-        ];
-        practice = [
-          "내 업무 문서 1개를 예시로 가져오기(민감 정보 제거)",
-          "회의록: 결정/액션아이템/리스크로 구조화",
-          "메일: 목적/요청/데드라인/맥락을 강제하는 템플릿 적용"
-        ];
-        deliverables = ["회의록 템플릿", "메일 템플릿", "업무문서 자동 요약 프롬프트"];
-        checkpoints.push(...safety);
-      }
-      else if (title.includes("품질") || title.includes("평가/검증")) {
-        objectives = [
-          "AI 결과물의 품질을 올리는 “평가 루틴” 설계",
-          "테스트 케이스(좋은 예/나쁜 예)로 실패를 줄인다",
-          "버전 관리(프롬프트/지시/데이터) 방법을 이해"
-        ];
-        practice = [
-          "같은 요청을 3가지 방식으로 바꿔보기(제약/예시/출력형식)",
-          "평가 체크리스트 만들기(정확성/완결성/톤/근거)",
-          "실패 유형 분류: 누락/환각/과도한 자신감/형식 붕괴"
-        ];
-        deliverables = ["평가 체크리스트", "테스트 케이스 6개", "프롬프트 버전 기록 템플릿"];
-      }
-      else if (title.includes("데이터")) {
-        objectives = [
-          "표/CSV 기반으로 질문을 구조화하는 법 습득",
-          "요약/인사이트/리포트를 자동 생성하는 흐름 만들기",
-          "‘근거를 남기는’ 출력 방식(표/수치/출처)을 적용"
-        ];
-        practice = [
-          "샘플 CSV(매출/리뷰/설문)로 질문 만들기",
-          "지표 요약 → 인사이트 3개 → 다음 액션 3개 생성",
-          "출력 형식을 ‘리포트 템플릿’으로 고정"
-        ];
-        deliverables = ["리포트 템플릿(표 포함)", "인사이트 3개 + 액션 3개", "질문 리스트 10개"];
-        checkpoints.push("숫자/근거가 필요한 부분은 출처/계산 과정을 남겼는가?");
-      }
-      else if (title.includes("자동화")) {
-        objectives = [
-          "반복 업무를 트리거 기반 워크플로우로 자동화",
-          "입력 소스(폼/메일/노션) → 처리(AI) → 출력(슬랙/시트/문서) 연결",
-          "실패/재시도/로그를 최소한으로 설계"
-        ];
-        practice = [
-          "자동화 시나리오 1개 선택: 문의 답변, 콘텐츠 초안, 요약 리포트 등",
-          "3단계 워크플로우 설계(트리거/액션/저장)",
-          "에러 케이스 2개 정의(빈 입력/과도한 길이) + 처리"
-        ];
-        deliverables = ["자동화 플로우 다이어그램", "워크플로우 1개 동작", "로그/오류 처리 규칙"];
-        checkpoints.push("실패했을 때 사람에게 넘기는(Hand-off) 루트가 있는가?");
-        checkpoints.push(...safety);
-      }
-      else if (title.includes("제품화")) {
-        objectives = [
-          "문제정의(사용자/상황/가치)를 1장으로 정리",
-          "MVP 범위를 최소 기능으로 자르기",
-          "프롬프트/툴/데이터/가드레일을 스펙으로 문서화"
-        ];
-        practice = [
-          "문제 정의 캔버스 작성(누구의 어떤 문제?)",
-          "MVP 스펙: 핵심 기능 3개, 제외 3개",
-          "성공 지표(전환/시간 절약/정확도) 1~2개 설정"
-        ];
-        deliverables = ["문제정의 1장", "MVP 스펙 문서", "성공 지표/측정 방법"];
-      }
-      else if (title.includes("미니 MVP")) {
-        objectives = [
-          "작동하는 데모를 만든다(입력→출력)",
-          "사용자 시나리오로 테스트한다",
-          "배포/공유 가능한 형태로 정리한다"
-        ];
-
-        const options = [
-          "옵션 A: ‘업무 도우미 챗봇’(FAQ/정리/초안 생성)",
-          "옵션 B: ‘리뷰/문서 평가기’(체크리스트 기반 피드백)",
-          "옵션 C: ‘콘텐츠 제작 파이프라인’(아이디어→스크립트→썸네일 문구)"
-        ];
-
-        practice = [
-          ...options,
-          "선택한 옵션으로: 입력 폼(또는 텍스트) → AI 처리 → 결과 화면 구성",
-          "가드레일: 금지 토픽/민감 데이터 경고/근거 요구 옵션"
-        ];
-
-        deliverables = [
-          "데모 URL(또는 로컬 페이지)",
-          "사용자 시나리오 3개",
-          "개선 백로그(우선순위 포함)"
-        ];
-
-        checkpoints.push("사용자 입력이 불완전해도 안내/수정 루프가 있는가?");
-        checkpoints.push(...safety);
-      }
-      else if (title.includes("배포/공유")) {
-        objectives = [
-          "데모를 보여줄 ‘스토리’를 만든다",
-          "운영 시 리스크(보안/저작권/정확성)를 체크",
-          "내일 바로 돌릴 수 있는 운영 가이드를 만든다"
-        ];
-        practice = [
-          "데모 스크립트 60초 작성(문제→해결→효과)",
-          "운영 체크리스트(권한/로그/데이터 보관/문구) 작성",
-          "피드백 수집 문항 5개 만들기"
-        ];
-        deliverables = ["데모 스크립트", "운영 체크리스트", "피드백 폼 질문 5개"];
-      }
-      else if (title.includes("발표 & 피드백")) {
-        objectives = [
-          "1분 데모로 핵심 가치를 전달",
-          "피드백을 “다음 행동”으로 바꾼다",
-          "개선 백로그를 1주 계획으로 재정리"
-        ];
-        practice = [
-          "1분 데모 발표",
-          "피드백: Keep/Problem/Try로 정리",
-          "우선순위: 임팩트×난이도 매트릭스로 5개 선정"
-        ];
-        deliverables = ["발표 영상/기록(선택)", "KPT 정리", "1주 백로그 5개"];
-      }
-      else {
-        // fallback
-        objectives = ["핵심 개념 이해", "실습으로 손에 익히기", "산출물 만들기"];
-        practice = ["예제 따라하기", "내 케이스에 적용", "결과 공유"];
-        deliverables = ["산출물 1개", "체크리스트 1개"];
-      }
-
-      // 제약 반영(간단히 문장 추가)
-      const notes = [];
-      if (constraints && constraints.trim().length > 0) {
-        notes.push(`요구사항 반영: ${constraints.trim()}`);
-      }
-      if (level === "beginner") notes.push("입문자 기준: 용어는 쉬운 말로, 예시 중심으로 진행");
-      if (level === "intermediate") notes.push("중급 기준: 실패 케이스/평가/로그/가드레일을 반드시 포함");
-      if (format === "online") notes.push("온라인 기준: 화면 공유/체크포인트마다 손들기/채팅 제출로 진행");
-      if (format === "offline") notes.push("오프라인 기준: 2~3인 페어 실습, 화이트보드로 플로우 설계");
-
-      return { objectives, practice, deliverables, checkpoints, notes: notes.join(" · ") };
-    }
-
-    function generateCurriculum(context){
-      const plan = getSessionPlan(context.level);
-      const timeCfg = buildTimeBlocks(720, 30, 9*60);
-      let cursor = timeCfg.startAtMin;
-
-      const sessions = plan.map((s, idx) => {
-        const start = cursor;
-        const end = cursor + s.duration;
-        cursor = end;
-
-        const detail = generateSessionDetail(s, context);
-        return {
-          idx: idx + 1,
-          type: s.type,
-          title: s.title,
-          duration: s.duration,
-          time: { start, end, label: `${minutesToHHMM(start)}–${minutesToHHMM(end)}` },
-          ...detail
+        const lesson = {
+          intro: `${cfg.topic}와 연결된 경험을 떠올리게 하는 질문 2~3개로 도입합니다.`,
+          main: `${activityA} 중심으로 아이 참여를 유도하고, 이어서 ${activityB}로 확장합니다.`,
+          wrap: "관찰한 점을 말로 정리하고, 오늘 활동에서 가장 재미있었던 순간을 공유합니다.",
+          questions: [
+            `${cfg.topic}에서 오늘 우리가 찾은 점은 무엇일까요?`,
+            "왜 그렇게 생각했는지 친구에게 설명해 볼까요?",
+            "다음 활동에서 바꿔보고 싶은 점은 무엇일까요?"
+          ],
+          safety: cfg.safetyStrict
+            ? ["활동 시작 전 안전 규칙 3가지 확인", "도구 사용 시 교사 시범 후 진행", "활동 후 정리 및 손 씻기"]
+            : ["기본 안전 규칙 안내", "활동 공간 정리"]
         };
-      });
 
-      const summary = {
-        title: context.courseTitle,
-        audience: context.audience,
-        level: context.level,
-        format: context.format,
-        domain: context.domain,
-        tools: context.tools,
-        goal: context.goal,
-        constraints: context.constraints,
-        totalHours: 12,
-        totalMinutes: 720,
-        outputs: [
-          "업무 자동화 1개(문서/요약/메일/리포트 중 택)",
-          "미니 MVP 1개(도우미/리뷰어/콘텐츠 파이프라인 중 택)",
-          "평가 체크리스트 + 테스트 케이스",
-          "운영 체크리스트 + 피드백 질문"
-        ]
+        days.push({
+          dayName,
+          goal: `${cfg.age} 아동이 ${cfg.topic}를 ${cfg.focusArea} 중심 활동으로 이해하고 표현한다.`,
+          areas: [cfg.focusArea, secArea],
+          activities: [activityA, activityB],
+          materials: cfg.materialLevel === "간단"
+            ? ["색연필", "A4 용지", "스티커"]
+            : cfg.materialLevel === "보통"
+              ? ["색지", "풀", "가위(교사 관리)", "활동 카드"]
+              : ["자연물 소품", "템플릿 카드", "보조 교구"],
+          environment: `${cfg.indoor ? "실내" : ""}${cfg.indoor && cfg.outdoor ? " + " : ""}${cfg.outdoor ? "실외" : ""}` || "실내",
+          lesson
+        });
+      }
+      return days;
+    }
+
+    function generateSlidesForDay(day, cfg){
+      const styleTips = {
+        "놀이형":"짧은 문장 + 큰 아이콘 + 행동 지시",
+        "설명형":"핵심 개념 중심의 단계형 설명",
+        "스토리형":"상황-문제-해결 흐름의 내러티브",
+        "퀴즈형":"질문-선택-피드백 구조"
       };
 
-      return { summary, sessions, generatedAt: new Date().toISOString() };
+      return [
+        {title:`오늘의 주제: ${cfg.topic}`, body:`${day.dayName} 수업 목표: ${day.goal}`},
+        {title:"도입 질문", body:day.lesson.questions[0]},
+        {title:`활동 1: ${day.activities[0]}`, body:`준비물: ${day.materials.join(", ")} / 진행: ${day.lesson.main}`},
+        {title:`활동 2: ${day.activities[1]}`, body:`확장 활동으로 ${day.areas[1]} 영역을 연결합니다.`},
+        {title:"안전 약속", body:day.lesson.safety.join(" · ")},
+        {title:"마무리 및 공유", body:`정리 질문: ${day.lesson.questions[2]} / 템플릿: ${styleTips[cfg.slideType]}`}
+      ];
     }
 
-    // ===== Rendering =====
-    function renderMeta(summary){
-      const tags = [];
-      tags.push(`총 ${summary.totalHours}시간`);
-      tags.push(summary.audience);
-      tags.push(summary.level === "beginner" ? "입문" : summary.level === "intermediate" ? "중급" : "입문→중급");
-      tags.push(summary.format === "online" ? "온라인" : summary.format === "offline" ? "오프라인" : "하이브리드");
-      if (summary.domain) tags.push(summary.domain);
-      if (summary.tools && summary.tools.length) tags.push(`툴: ${summary.tools.slice(0,3).join(", ")}${summary.tools.length>3?"…":""}`);
-
-      const meta = $("metaTags");
-      meta.innerHTML = tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+    function renderMeta(cfg, days){
+      const tags = [cfg.age, cfg.period === "week" ? "1주 5일" : "1일", `주제: ${cfg.topic}`, `강조: ${cfg.focusArea}`, `슬라이드: ${cfg.slideType}`];
+      $("metaTags").innerHTML = tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+      $("outTitle").textContent = `${cfg.topic} 커리큘럼 생성 완료`;
+      $("outDesc").textContent = `${days.length}개 일차 기준으로 커리큘럼과 수업안이 생성되었습니다.`;
     }
 
     function escapeHtml(s){
@@ -1116,422 +413,168 @@
         .replaceAll("'","&#039;");
     }
 
-    function renderSchedule(cur){
-      const schedule = $("schedule");
-      schedule.innerHTML = "";
+    function renderCurriculum(cur){
+      const out = $("curriculumOut");
+      out.innerHTML = "";
+      if (!cur.config.options.curriculum && !cur.config.options.lesson) {
+        out.innerHTML = '<p class="sub">커리큘럼/수업안 출력 옵션이 꺼져 있습니다.</p>';
+        return;
+      }
 
-      cur.sessions.forEach(s => {
-        const details = document.createElement("details");
-        details.open = s.type !== "브레이크"; // 브레이크는 접어두기
-
-        const isBreak = s.type === "브레이크";
-        const headerType = isBreak ? "휴식" : (s.type === "강의" ? "강의" : "실습");
-
-        details.innerHTML = `
-          <summary>
-            <div class="sumLeft">
-              <div class="sumTop">
-                <span class="time">${escapeHtml(s.time.label)}</span>
-                <span class="title">${escapeHtml(s.title)}</span>
-              </div>
-              <div class="type">${escapeHtml(headerType)} · ${escapeHtml(s.duration)}분</div>
-            </div>
-            <div class="type">${isBreak ? "☕" : (s.type === "실습" ? "🧪" : "📌")}</div>
-          </summary>
-          <div class="body">
-            <div class="cols">
-              <div class="box">
-                <b>목표</b>
-                <ul>${s.objectives.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
-              </div>
-              <div class="box">
-                <b>실습/진행</b>
-                <ul>${s.practice.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
-              </div>
-            </div>
-            <div class="cols">
-              <div class="box">
-                <b>산출물</b>
-                <ul>${s.deliverables.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
-              </div>
-              <div class="box">
-                <b>체크포인트</b>
-                <ul>${s.checkpoints.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
-              </div>
-            </div>
-            ${s.notes ? `<div class="box"><b>메모</b><div style="margin-top:6px;">${escapeHtml(s.notes)}</div></div>` : ""}
+      cur.days.forEach((d, idx) => {
+        const div = document.createElement("div");
+        div.className = "dayCard";
+        div.innerHTML = `
+          <div class="dayTitle">
+            <b>${escapeHtml(d.dayName)} · ${escapeHtml(d.activities[0])}</b>
+            <span class="tiny">영역: ${escapeHtml(d.areas.join(" / "))}</span>
           </div>
+          <div class="box"><h4>일일 목표</h4><p>${escapeHtml(d.goal)}</p></div>
+          ${cur.config.options.lesson ? `
+            <div class="box"><h4>수업안 (도입-전개-마무리)</h4>
+              <ul>
+                <li><b>도입:</b> ${escapeHtml(d.lesson.intro)}</li>
+                <li><b>전개:</b> ${escapeHtml(d.lesson.main)}</li>
+                <li><b>마무리:</b> ${escapeHtml(d.lesson.wrap)}</li>
+              </ul>
+            </div>
+            <div class="box"><h4>발문/질문</h4><ul>${d.lesson.questions.map(q => `<li>${escapeHtml(q)}</li>`).join("")}</ul></div>
+            <div class="box"><h4>안전 유의</h4><ul>${d.lesson.safety.map(s => `<li>${escapeHtml(s)}</li>`).join("")}</ul></div>
+          ` : ""}
+          <div class="tiny">환경: ${escapeHtml(d.environment)} · 준비물: ${escapeHtml(d.materials.join(", "))}</div>
         `;
-        schedule.appendChild(details);
+        out.appendChild(div);
       });
+
+      const target = $("slideTargetDay");
+      target.disabled = false;
+      target.innerHTML = cur.days.map((d,i) => `<option value="${i}">${escapeHtml(d.dayName)} - ${escapeHtml(d.activities[0])}</option>`).join("");
+      $("makeSlidesBtn").disabled = !cur.config.options.slides;
+    }
+
+    function renderSlides(slides, dayName){
+      const out = $("slidesOut");
+      out.innerHTML = `<h3 style="margin:16px 0 6px">${escapeHtml(dayName)} 슬라이드 초안</h3>`;
+      slides.forEach((s, idx) => {
+        const div = document.createElement("div");
+        div.className = "slideCard";
+        div.innerHTML = `<h4>${idx+1}. ${escapeHtml(s.title)}</h4><p class="sub" style="margin:0">${escapeHtml(s.body)}</p>`;
+        out.appendChild(div);
+      });
+      out.insertAdjacentHTML("beforeend", '<div class="warn"><span class="ok">TIP</span> 이 초안을 PPTX/Google Slides 렌더러 API에 전달하면 자동 장표 생성 파이프라인으로 확장할 수 있습니다.</div>');
     }
 
     function buildPlainText(cur){
-      const s = cur.summary;
-      const lvl = s.level === "beginner" ? "입문" : s.level === "intermediate" ? "중급" : "입문→중급";
-      const fmt = s.format === "online" ? "온라인" : s.format === "offline" ? "오프라인" : "하이브리드";
-      const tools = s.tools.length ? s.tools.join(", ") : "-";
-      const domain = s.domain ? s.domain : "-";
-      const constraints = s.constraints ? s.constraints : "-";
-
-      let out = "";
-      out += `# ${s.title}\n`;
-      out += `- 대상: ${s.audience}\n`;
-      out += `- 난이도: ${lvl}\n`;
-      out += `- 형태: ${fmt}\n`;
-      out += `- 도메인/업종: ${domain}\n`;
-      out += `- 툴/스택: ${tools}\n`;
-      out += `- 목표: ${s.goal}\n`;
-      out += `- 제약/요구사항: ${constraints}\n\n`;
-      out += `## 기대 산출물\n`;
-      s.outputs.forEach(x => out += `- ${x}\n`);
-      out += `\n## 12시간 세부 시간표\n`;
-
-      cur.sessions.forEach(sess => {
-        out += `\n### [${sess.time.label}] (${sess.type}, ${sess.duration}분) ${sess.title}\n`;
-        out += `- 목표\n`;
-        sess.objectives.forEach(x => out += `  - ${x}\n`);
-        out += `- 실습/진행\n`;
-        sess.practice.forEach(x => out += `  - ${x}\n`);
-        out += `- 산출물\n`;
-        sess.deliverables.forEach(x => out += `  - ${x}\n`);
-        out += `- 체크포인트\n`;
-        sess.checkpoints.forEach(x => out += `  - ${x}\n`);
-        if (sess.notes) out += `- 메모: ${sess.notes}\n`;
+      let t = `# ${cur.config.topic} 커리큘럼\n`;
+      t += `- 대상: ${cur.config.age}\n`;
+      t += `- 기간: ${cur.config.period === "week" ? "1주(5일)" : "1일"}\n`;
+      t += `- 강조 영역: ${cur.config.focusArea}\n`;
+      t += `- 제약: ${cur.config.constraints || "-"}\n\n`;
+      cur.days.forEach(d => {
+        t += `## ${d.dayName}\n`;
+        t += `- 목표: ${d.goal}\n`;
+        t += `- 활동: ${d.activities.join(", ")}\n`;
+        t += `- 도입: ${d.lesson.intro}\n`;
+        t += `- 전개: ${d.lesson.main}\n`;
+        t += `- 마무리: ${d.lesson.wrap}\n`;
+        t += `- 안전: ${d.lesson.safety.join(" / ")}\n\n`;
       });
-
-      return out;
+      return t;
     }
 
-    // ===== DOM events =====
-    const genBtn = $("genBtn");
-    const copyBtn = $("copyBtn");
-    const downloadBtn = $("downloadBtn");
-    const printBtn = $("printBtn");
-    const resetBtn = $("resetBtn");
-    const copyOneLineBtn = $("copyOneLine");
-    const themeToggleBtn = $("themeToggle");
-    const partnershipForm = $("partnershipForm");
-    const partnerSubmitBtn = $("partnerSubmitBtn");
-    const partnerFormStatus = $("partnerFormStatus");
-    const rpsStartBtn = $("rpsStartBtn");
-    const rpsStopBtn = $("rpsStopBtn");
-    const rpsMatchBtn = $("rpsMatchBtn");
-    const rpsCamHost = $("rpsCamHost");
-    const rpsNow = $("rpsNow");
-    const rpsResult = $("rpsResult");
-    const rpsScores = $("rpsScores");
-
-    let current = null;
-    const RPS_MODEL_BASE = "https://storage.googleapis.com/tm-model/-TybRB3W3/";
-    const RPS_HANDS = ["주먹", "가위", "보"];
-    const RPS_EMOJI = { "주먹":"✊", "가위":"✌️", "보":"🖐️" };
-    let rpsModel = null;
-    let rpsVideoEl = null;
-    let rpsStream = null;
-    let rpsLoopId = null;
-    let rpsLatest = null;
-
-    function getContext(){
-      return {
-        courseTitle: $("courseTitle").value.trim() || "AI 강의 12시간",
-        audience: $("audience").value,
-        level: $("level").value,
-        format: $("format").value,
-        tools: safeSplitComma($("tools").value),
-        goal: $("goal").value.trim(),
-        domain: $("domain").value.trim(),
-        constraints: $("constraints").value.trim()
-      };
+    function enableOutputButtons(ok){
+      $("copyBtn").disabled = !ok;
+      $("downloadBtn").disabled = !ok;
     }
 
-    function enableOutputs(enabled){
-      copyBtn.disabled = !enabled;
-      downloadBtn.disabled = !enabled;
-      printBtn.disabled = !enabled;
-      copyOneLineBtn.disabled = !enabled;
-    }
+    $("genBtn").addEventListener("click", () => {
+      const cfg = getForm();
+      if (!cfg.indoor && !cfg.outdoor){
+        alert("운영 환경(실내/실외) 중 최소 1개를 선택해 주세요.");
+        return;
+      }
+      if (!cfg.options.curriculum && !cfg.options.lesson && !cfg.options.slides){
+        alert("최소 1개 결과물 옵션을 선택해 주세요.");
+        return;
+      }
 
-    genBtn.addEventListener("click", () => {
-      const ctx = getContext();
-      current = generateCurriculum(ctx);
-
-      $("outTitle").textContent = current.summary.title;
-      $("outDesc").textContent = `총 12시간 · ${ctx.audience} · ${ctx.level === "beginner" ? "입문" : ctx.level === "intermediate" ? "중급" : "입문→중급"} · 툴: ${(ctx.tools.slice(0,4).join(", ") || "ChatGPT")}${ctx.tools.length>4?"…":""}`;
-      renderMeta(current.summary);
-      renderSchedule(current);
-      enableOutputs(true);
+      const days = buildDays(cfg);
+      current = { config: cfg, days, createdAt: new Date().toISOString() };
+      renderMeta(cfg, days);
+      renderCurriculum(current);
+      $("slidesOut").innerHTML = "";
+      enableOutputButtons(true);
     });
 
-    copyBtn.addEventListener("click", async () => {
+    $("makeSlidesBtn").addEventListener("click", () => {
       if (!current) return;
-      const text = buildPlainText(current);
+      const idx = Number($("slideTargetDay").value || 0);
+      const day = current.days[idx];
+      const slides = generateSlidesForDay(day, current.config);
+      current.lastSlides = { dayIndex: idx, slides };
+      renderSlides(slides, day.dayName);
+    });
+
+    $("copyBtn").addEventListener("click", async () => {
+      if (!current) return;
+      const txt = buildPlainText(current);
       try{
-        await navigator.clipboard.writeText(text);
-        const prev = copyBtn.textContent;
-        copyBtn.textContent = "복사 완료 ✅";
-        setTimeout(()=> copyBtn.textContent = prev, 1100);
-      }catch(e){
-        alert("복사 권한이 없어요. 브라우저 설정을 확인해 주세요.");
+        await navigator.clipboard.writeText(txt);
+        const prev = $("copyBtn").textContent;
+        $("copyBtn").textContent = "복사 완료 ✅";
+        setTimeout(() => { $("copyBtn").textContent = prev; }, 1000);
+      }catch(_e){
+        alert("복사 권한이 없어 텍스트를 복사할 수 없습니다.");
       }
     });
 
-    copyOneLineBtn.addEventListener("click", async () => {
+    $("downloadBtn").addEventListener("click", () => {
       if (!current) return;
-      const s = current.summary;
-      const lvl = s.level === "beginner" ? "입문" : s.level === "intermediate" ? "중급" : "입문→중급";
-      const fmt = s.format === "online" ? "온라인" : s.format === "offline" ? "오프라인" : "하이브리드";
-      const line = `${s.title} | 12시간 | ${s.audience} | ${lvl} | ${fmt} | 산출물: 자동화 1 + 미니 MVP 1`;
-      try{
-        await navigator.clipboard.writeText(line);
-        const prev = copyOneLineBtn.textContent;
-        copyOneLineBtn.textContent = "복사 완료 ✅";
-        setTimeout(()=> copyOneLineBtn.textContent = prev, 1100);
-      }catch(e){
-        alert(line);
-      }
-    });
-
-    downloadBtn.addEventListener("click", () => {
-      if (!current) return;
-      const blob = new Blob([JSON.stringify(current, null, 2)], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(current, null, 2)], {type:"application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ai_curriculum_12h_${slugDate()}.json`;
+      a.download = `kindergarten_curriculum_${Date.now()}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     });
 
-    printBtn.addEventListener("click", () => {
-      if (!current) return;
-      window.print();
-    });
-
-    resetBtn.addEventListener("click", () => {
-      current = null;
-      enableOutputs(false);
-      $("metaTags").innerHTML = "";
-      $("schedule").innerHTML = "";
-      $("outTitle").textContent = "아직 생성된 커리큘럼이 없어요";
-      $("outDesc").textContent = "왼쪽에서 입력 후 “커리큘럼 생성”을 눌러주세요.";
-    });
-
-    themeToggleBtn.addEventListener("click", () => {
+    $("themeToggle").addEventListener("click", () => {
       const next = document.body.dataset.theme === "dark" ? "light" : "dark";
       applyTheme(next);
     });
 
+    const partnershipForm = $("partnershipForm");
+    const partnerSubmitBtn = $("partnerSubmitBtn");
+    const partnerFormStatus = $("partnerFormStatus");
+
     partnershipForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      partnerFormStatus.classList.add("hidden");
-      partnerFormStatus.classList.remove("error");
       partnerSubmitBtn.disabled = true;
-
+      partnerFormStatus.textContent = "문의 전송 중...";
+      partnerFormStatus.className = "sub";
       try{
         const res = await fetch(partnershipForm.action, {
-          method: "POST",
-          body: new FormData(partnershipForm),
-          headers: { "Accept": "application/json" }
+          method:"POST",
+          body:new FormData(partnershipForm),
+          headers:{"Accept":"application/json"}
         });
-
-        if (!res.ok) throw new Error("Form submission failed");
+        if (!res.ok) throw new Error("fail");
         partnershipForm.reset();
-        partnerFormStatus.textContent = "문의가 정상 접수되었습니다. 빠르게 확인 후 연락드릴게요.";
-      }catch(err){
-        partnerFormStatus.textContent = "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.";
-        partnerFormStatus.classList.add("error");
+        partnerFormStatus.textContent = "문의가 접수되었습니다.";
+        partnerFormStatus.className = "sub ok";
+      }catch(_err){
+        partnerFormStatus.textContent = "전송 실패: 잠시 후 다시 시도해 주세요.";
+        partnerFormStatus.className = "sub danger";
       }finally{
-        partnerFormStatus.classList.remove("hidden");
         partnerSubmitBtn.disabled = false;
       }
     });
 
-    function initRpsScores(labels){
-      rpsScores.innerHTML = labels.map((label) => `
-        <div class="rpsRow" data-label="${escapeHtml(label)}">
-          <span>${escapeHtml(label)}</span>
-          <div class="rpsBar"><div class="rpsFill"></div></div>
-          <span class="mono">0%</span>
-        </div>
-      `).join("");
-    }
-
-    function updateRpsScores(predictions){
-      predictions.forEach((p) => {
-        const row = rpsScores.querySelector(`[data-label="${CSS.escape(p.className)}"]`);
-        if (!row) return;
-        const fill = row.querySelector(".rpsFill");
-        const pctEl = row.querySelector(".mono");
-        const pct = Math.round(p.probability * 100);
-        fill.style.width = `${pct}%`;
-        pctEl.textContent = `${pct}%`;
-      });
-    }
-
-    function bestPrediction(predictions){
-      return predictions.reduce((best, cur) => cur.probability > best.probability ? cur : best, predictions[0]);
-    }
-
-    function decideRps(userHand, aiHand){
-      if (userHand === aiHand) return "무승부";
-      const userWin =
-        (userHand === "주먹" && aiHand === "가위") ||
-        (userHand === "가위" && aiHand === "보") ||
-        (userHand === "보" && aiHand === "주먹");
-      return userWin ? "사용자 승리" : "AI 승리";
-    }
-
-    async function waitForVideoReady(video, timeoutMs = 10000){
-      await new Promise((resolve, reject) => {
-        let done = false;
-        const onReady = () => {
-          if (done) return;
-          done = true;
-          cleanup();
-          resolve();
-        };
-        const onError = () => {
-          if (done) return;
-          done = true;
-          cleanup();
-          reject(new Error("video element error"));
-        };
-        const timer = window.setTimeout(() => {
-          if (done) return;
-          done = true;
-          cleanup();
-          reject(new Error("Timeout starting video source"));
-        }, timeoutMs);
-        const cleanup = () => {
-          window.clearTimeout(timer);
-          video.removeEventListener("loadedmetadata", onReady);
-          video.removeEventListener("canplay", onReady);
-          video.removeEventListener("error", onError);
-        };
-        video.addEventListener("loadedmetadata", onReady, { once: true });
-        video.addEventListener("canplay", onReady, { once: true });
-        video.addEventListener("error", onError, { once: true });
-      });
-
-      try{
-        await video.play();
-      }catch(_err){
-        // Some browsers may throw even though the stream is ready; continue.
-      }
-    }
-
-    async function loadRpsModel(){
-      if (rpsModel) return;
-      if (!window.tmImage) throw new Error("tmImage library missing");
-      rpsResult.textContent = "모델 로딩 중...";
-      rpsModel = await tmImage.load(`${RPS_MODEL_BASE}model.json`, `${RPS_MODEL_BASE}metadata.json`);
-      initRpsScores(rpsModel.getClassLabels());
-    }
-
-    async function runRpsLoop(){
-      if (!rpsVideoEl || !rpsModel) return;
-      const predictions = await rpsModel.predict(rpsVideoEl);
-      updateRpsScores(predictions);
-      const top = bestPrediction(predictions);
-      const pct = Math.round(top.probability * 100);
-      rpsLatest = top;
-      rpsNow.textContent = `현재 인식: ${RPS_EMOJI[top.className] || ""} ${top.className} (${pct}%)`;
-      if (pct < 60){
-        rpsResult.textContent = "손 모양이 잘 보이도록 카메라와 거리를 조금 조정해 주세요.";
-      } else {
-        rpsResult.textContent = "인식 안정화 완료. 아래 버튼으로 AI와 승부할 수 있어요.";
-      }
-      rpsLoopId = window.requestAnimationFrame(runRpsLoop);
-    }
-
-    async function startRpsCamera(){
-      try{
-        if (!window.isSecureContext) {
-          throw new Error("보안 연결(HTTPS)에서만 카메라를 사용할 수 있습니다.");
-        }
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          throw new Error("현재 브라우저가 카메라 API를 지원하지 않습니다.");
-        }
-        await loadRpsModel();
-        if (rpsStream) return;
-        let stream = null;
-        try{
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-        }catch(_err){
-          // Some browsers/devices reject facingMode constraints; retry with generic video.
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        }
-        rpsStream = stream;
-        rpsVideoEl = document.createElement("video");
-        rpsVideoEl.setAttribute("playsinline", "true");
-        rpsVideoEl.muted = true;
-        rpsVideoEl.autoplay = true;
-        rpsVideoEl.setAttribute("autoplay", "true");
-        rpsVideoEl.srcObject = rpsStream;
-        await waitForVideoReady(rpsVideoEl);
-        rpsCamHost.innerHTML = "";
-        rpsCamHost.appendChild(rpsVideoEl);
-        rpsStartBtn.disabled = true;
-        rpsStopBtn.disabled = false;
-        rpsMatchBtn.disabled = false;
-        rpsLoopId = window.requestAnimationFrame(runRpsLoop);
-      }catch(err){
-        const reason = err && err.message ? err.message : "알 수 없는 오류";
-        rpsResult.textContent = `카메라/모델 로딩 실패: ${reason}`;
-        stopRpsCamera(true);
-      }
-    }
-
-    function stopRpsCamera(keepStatusMessage = false){
-      if (rpsLoopId) window.cancelAnimationFrame(rpsLoopId);
-      rpsLoopId = null;
-      if (rpsStream){
-        rpsStream.getTracks().forEach((t) => t.stop());
-        rpsStream = null;
-      }
-      rpsVideoEl = null;
-      rpsCamHost.textContent = "카메라 시작 버튼을 누르면 인식이 시작됩니다.";
-      rpsStartBtn.disabled = false;
-      rpsStopBtn.disabled = true;
-      rpsMatchBtn.disabled = true;
-      rpsNow.textContent = "현재 인식: -";
-      if (!keepStatusMessage) rpsResult.textContent = "카메라를 시작한 뒤 손동작을 보여주세요.";
-      initRpsScores(RPS_HANDS);
-    }
-
-    rpsStartBtn.addEventListener("click", startRpsCamera);
-    rpsStopBtn.addEventListener("click", stopRpsCamera);
-
-    rpsMatchBtn.addEventListener("click", () => {
-      if (!rpsLatest) return;
-      const userHand = rpsLatest.className;
-      const aiHand = RPS_HANDS[Math.floor(Math.random() * RPS_HANDS.length)];
-      const result = decideRps(userHand, aiHand);
-      rpsResult.textContent = `당신 ${RPS_EMOJI[userHand] || ""} ${userHand} vs AI ${RPS_EMOJI[aiHand] || ""} ${aiHand} → ${result}`;
-    });
-
-    window.addEventListener("beforeunload", stopRpsCamera);
-
-    // 최초 상태
-    initRpsScores(RPS_HANDS);
-    applyTheme(getInitialTheme());
-    enableOutputs(false);
-  </script>
-  <script>
-    var disqus_config = function () {
-      this.page.url = window.location.href;
-      this.page.identifier = window.location.pathname || "home";
-    };
-
-    (function() {
-      var d = document, s = d.createElement("script");
-      s.src = "https://aigangyi-keorikyulreom-jejag.disqus.com/embed.js";
-      s.setAttribute("data-timestamp", +new Date());
-      (d.head || d.body).appendChild(s);
-    })();
+    applyTheme(getTheme());
+    enableOutputButtons(false);
   </script>
 </body>
 </html>
