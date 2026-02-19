@@ -363,6 +363,26 @@
       text-decoration:underline;
       text-underline-offset:3px;
     }
+    .faq{
+      display:grid;
+      gap:10px;
+    }
+    .faq details{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background: rgba(0,0,0,.12);
+    }
+    .faq summary{
+      padding:12px 14px;
+      font-weight:700;
+      color:var(--text);
+    }
+    .faq .answer{
+      padding:0 14px 14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
     body[data-theme="light"]{
       --bg:#f3f6fb;
       --card:rgba(255,255,255,.86);
@@ -557,6 +577,33 @@
             <h3>5) 광고와 콘텐츠의 균형</h3>
             <p>콘텐츠 자체 가치를 해치지 않는 범위에서만 광고를 운영합니다. 광고로 인해 본문 탐색이 어려워지지 않도록 가독성과 정보 전달을 우선합니다.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="hd">
+        <div class="pill">❓ 자주 묻는 질문</div>
+        <p class="sub" style="margin-top:8px;">서비스 목적과 사용 방법을 명확히 안내해 정보 탐색성을 높입니다.</p>
+      </div>
+      <div class="bd">
+        <div class="faq">
+          <details>
+            <summary>이 사이트는 어떤 사람에게 유용한가요?</summary>
+            <div class="answer">사내 교육 담당자, 프리랜서 강사, 실무형 AI 강의를 설계하려는 기획자에게 적합합니다. 대상/목표/도구를 입력하면 12시간 구성안을 빠르게 만들 수 있습니다.</div>
+          </details>
+          <details>
+            <summary>생성된 커리큘럼은 그대로 사용해도 되나요?</summary>
+            <div class="answer">초안 생성 도구이므로 최종 적용 전 반드시 교육 대상과 목적에 맞게 수정이 필요합니다. 특히 보안·개인정보·저작권 항목은 조직 정책에 맞게 검토해야 합니다.</div>
+          </details>
+          <details>
+            <summary>광고가 콘텐츠보다 더 많아지나요?</summary>
+            <div class="answer">아니요. 본 사이트는 콘텐츠 가독성과 정보 전달을 우선합니다. 광고는 콘텐츠 탐색을 방해하지 않는 범위에서 운영합니다.</div>
+          </details>
+          <details>
+            <summary>운영 정책은 어디서 확인하나요?</summary>
+            <div class="answer">하단 링크를 통해 사이트 소개, 개인정보처리방침, 이용약관, 문의 페이지를 확인할 수 있습니다.</div>
+          </details>
         </div>
       </div>
     </section>
