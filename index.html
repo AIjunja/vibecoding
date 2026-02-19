@@ -1091,7 +1091,7 @@
     const rpsScores = $("rpsScores");
 
     let current = null;
-    const RPS_MODEL_BASE = "https://teachablemachine.withgoogle.com/models/-TybRB3W3/";
+    const RPS_MODEL_BASE = "https://storage.googleapis.com/tm-model/-TybRB3W3/";
     const RPS_HANDS = ["주먹", "가위", "보"];
     const RPS_EMOJI = { "주먹":"✊", "가위":"✌️", "보":"🖐️" };
     let rpsModel = null;
@@ -1278,10 +1278,21 @@
 
     async function startRpsCamera(){
       try{
+        if (!window.isSecureContext) {
+          throw new Error("보안 연결(HTTPS)에서만 카메라를 사용할 수 있습니다.");
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("현재 브라우저가 카메라 API를 지원하지 않습니다.");
+        }
         await loadRpsModel();
         if (rpsWebcam) return;
         rpsWebcam = new tmImage.Webcam(320, 320, true);
-        await rpsWebcam.setup();
+        try{
+          await rpsWebcam.setup({ facingMode: "user" });
+        }catch(_err){
+          // Some browsers/devices reject facingMode constraints; retry with default.
+          await rpsWebcam.setup();
+        }
         await rpsWebcam.play();
         rpsCamHost.innerHTML = "";
         rpsCamHost.appendChild(rpsWebcam.canvas);
@@ -1290,7 +1301,8 @@
         rpsMatchBtn.disabled = false;
         rpsLoopId = window.requestAnimationFrame(runRpsLoop);
       }catch(err){
-        rpsResult.textContent = "카메라 또는 모델 로딩에 실패했습니다. 권한 허용 후 다시 시도해 주세요.";
+        const reason = err && err.message ? err.message : "알 수 없는 오류";
+        rpsResult.textContent = `카메라/모델 로딩 실패: ${reason}`;
       }
     }
 
