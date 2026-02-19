@@ -322,6 +322,47 @@
     }
     body[data-theme="light"] .formStatus.error{ color:#dc2626; }
     .hidden{ display:none; }
+    .guide{
+      display:grid;
+      gap:10px;
+    }
+    .guideItem{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background: rgba(0,0,0,.12);
+      padding:12px;
+    }
+    .guideItem h3{
+      margin:0 0 6px;
+      font-size:15px;
+      letter-spacing:-0.02em;
+    }
+    .guideItem p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .siteFooter{
+      width:min(1100px, 94vw);
+      margin:14px auto 0;
+      border-top:1px solid var(--stroke);
+      padding-top:12px;
+      display:grid;
+      gap:8px;
+      color:var(--muted2);
+      font-size:12px;
+    }
+    .siteFooter .links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .siteFooter a{
+      color:var(--muted);
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
     body[data-theme="light"]{
       --bg:#f3f6fb;
       --card:rgba(255,255,255,.86);
@@ -491,6 +532,37 @@
 
     <section class="card">
       <div class="hd">
+        <div class="pill">📘 사이트 품질 가이드</div>
+        <p class="sub" style="margin-top:8px;">방문자가 실제로 도움이 되는 정보를 얻을 수 있도록 운영 원칙과 학습 가이드를 공개합니다.</p>
+      </div>
+      <div class="bd">
+        <div class="guide">
+          <div class="guideItem">
+            <h3>1) 콘텐츠 작성 원칙</h3>
+            <p>실무에서 바로 적용 가능한 예시와 절차 중심으로 작성합니다. 중복 페이지를 늘리기보다 하나의 문서를 지속적으로 업데이트해 정확도와 완성도를 높입니다.</p>
+          </div>
+          <div class="guideItem">
+            <h3>2) 학습자 관점 정보 구조</h3>
+            <p>입문자도 빠르게 이해할 수 있도록 목표, 준비물, 실습 절차, 결과물, 검증 체크리스트 순서로 정보를 제공합니다. 필요한 정보에 바로 접근할 수 있게 섹션별로 명확히 분리합니다.</p>
+          </div>
+          <div class="guideItem">
+            <h3>3) 실습 중심 품질 검증</h3>
+            <p>각 커리큘럼은 산출물 기준으로 검증합니다. 예: 자동화 1개, 미니 MVP 1개, 평가표 1개. “무엇을 배웠는지”보다 “무엇을 만들었는지”를 기준으로 품질을 평가합니다.</p>
+          </div>
+          <div class="guideItem">
+            <h3>4) 투명한 운영 정보</h3>
+            <p>사이트 소개, 문의 채널, 개인정보처리방침, 이용약관을 공개합니다. 사용자 문의 응답 및 콘텐츠 수정 기록을 남겨 운영 책임성을 강화합니다.</p>
+          </div>
+          <div class="guideItem">
+            <h3>5) 광고와 콘텐츠의 균형</h3>
+            <p>콘텐츠 자체 가치를 해치지 않는 범위에서만 광고를 운영합니다. 광고로 인해 본문 탐색이 어려워지지 않도록 가독성과 정보 전달을 우선합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="hd">
         <div class="pill">🤝 제휴 문의</div>
         <p class="sub" style="margin-top:8px;">간단히 남겨주시면 확인 후 연락드릴게요.</p>
       </div>
@@ -561,6 +633,16 @@
       </div>
     </section>
   </div>
+  <footer class="siteFooter">
+    <div class="links">
+      <a href="/about.html">사이트 소개</a>
+      <a href="/privacy.html">개인정보처리방침</a>
+      <a href="/terms.html">이용약관</a>
+      <a href="/contact.html">문의하기</a>
+      <a href="/ads.txt">ads.txt</a>
+    </div>
+    <div>운영 원칙: 독창적·실무형 콘텐츠 제공, 사용자 중심 탐색 구조, 광고와 콘텐츠의 균형 유지</div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
