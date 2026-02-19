@@ -218,6 +218,77 @@
       color: var(--muted);
     }
     .formStatus.error{ color:#fca5a5; }
+    .rpsGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width: 840px){ .rpsGrid{ grid-template-columns: 1fr; } }
+    .rpsCam{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      padding:10px;
+      min-height: 256px;
+      display:grid;
+      place-items:center;
+      color: var(--muted);
+      text-align:center;
+      font-size:13px;
+    }
+    .rpsCam canvas{
+      width:min(100%, 320px);
+      height:auto;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.18);
+      display:block;
+    }
+    .rpsBox{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;
+      background: rgba(0,0,0,.14);
+      padding:12px;
+      display:grid;
+      gap:10px;
+    }
+    .rpsNow{
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:-0.01em;
+    }
+    .rpsResult{
+      font-size:15px;
+      color: var(--muted);
+      line-height:1.5;
+    }
+    .rpsScore{
+      display:grid;
+      gap:8px;
+    }
+    .rpsRow{
+      display:grid;
+      grid-template-columns: 56px 1fr 44px;
+      gap:8px;
+      align-items:center;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .rpsBar{
+      height:7px;
+      border-radius:999px;
+      background: rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+    .rpsFill{
+      height:100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width:0%;
+      transition: width .12s linear;
+    }
+    body[data-theme="light"] .rpsCam,
+    body[data-theme="light"] .rpsBox{ background: rgba(255,255,255,.78); border-color: rgba(15,23,42,.16); }
+    body[data-theme="light"] .rpsBar{ background: rgba(15,23,42,.12); }
     .commentsCard{
       background: linear-gradient(160deg, rgba(8,12,24,.92), rgba(12,18,34,.92));
       border: 1px solid rgba(255,255,255,.16);
@@ -415,7 +486,7 @@
       </section>
     </div>
 
-    <section class="card commentsCard">
+    <section class="card">
       <div class="hd">
         <div class="pill">🤝 제휴 문의</div>
         <p class="sub" style="margin-top:8px;">간단히 남겨주시면 확인 후 연락드릴게요.</p>
@@ -451,6 +522,30 @@
 
     <section class="card">
       <div class="hd">
+        <div class="pill">✊ AI 가위바위보</div>
+        <p class="sub" style="margin-top:8px;">브레이크 타임용 아이스브레이커: 손동작을 인식해 AI와 한 판 할 수 있어요.</p>
+      </div>
+      <div class="bd">
+        <div class="rpsGrid">
+          <div>
+            <div class="rpsCam" id="rpsCamHost">카메라 시작 버튼을 누르면 인식이 시작됩니다.</div>
+            <div class="btnRow">
+              <button id="rpsStartBtn" type="button">🎥 카메라 시작</button>
+              <button id="rpsStopBtn" type="button" disabled>⏹️ 중지</button>
+            </div>
+          </div>
+          <div class="rpsBox">
+            <div class="rpsNow" id="rpsNow">현재 인식: -</div>
+            <div class="rpsResult" id="rpsResult">카메라를 시작한 뒤 손동작을 보여주세요.</div>
+            <div class="rpsScore" id="rpsScores"></div>
+            <button class="primary" id="rpsMatchBtn" type="button" disabled>🤖 AI와 승부 보기</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card commentsCard">
+      <div class="hd">
         <div class="pill">💬 댓글</div>
         <p class="sub" style="margin-top:8px;">의견이나 질문을 남겨주세요.</p>
       </div>
@@ -464,6 +559,8 @@
     </section>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <script>
     // ===== Utilities =====
     const $ = (id) => document.getElementById(id);
@@ -985,8 +1082,22 @@
     const partnershipForm = $("partnershipForm");
     const partnerSubmitBtn = $("partnerSubmitBtn");
     const partnerFormStatus = $("partnerFormStatus");
+    const rpsStartBtn = $("rpsStartBtn");
+    const rpsStopBtn = $("rpsStopBtn");
+    const rpsMatchBtn = $("rpsMatchBtn");
+    const rpsCamHost = $("rpsCamHost");
+    const rpsNow = $("rpsNow");
+    const rpsResult = $("rpsResult");
+    const rpsScores = $("rpsScores");
 
     let current = null;
+    const RPS_MODEL_BASE = "https://teachablemachine.withgoogle.com/models/-TybRB3W3/";
+    const RPS_HANDS = ["주먹", "가위", "보"];
+    const RPS_EMOJI = { "주먹":"✊", "가위":"✌️", "보":"🖐️" };
+    let rpsModel = null;
+    let rpsWebcam = null;
+    let rpsLoopId = null;
+    let rpsLatest = null;
 
     function getContext(){
       return {
@@ -1105,7 +1216,115 @@
       }
     });
 
+    function initRpsScores(labels){
+      rpsScores.innerHTML = labels.map((label) => `
+        <div class="rpsRow" data-label="${escapeHtml(label)}">
+          <span>${escapeHtml(label)}</span>
+          <div class="rpsBar"><div class="rpsFill"></div></div>
+          <span class="mono">0%</span>
+        </div>
+      `).join("");
+    }
+
+    function updateRpsScores(predictions){
+      predictions.forEach((p) => {
+        const row = rpsScores.querySelector(`[data-label="${CSS.escape(p.className)}"]`);
+        if (!row) return;
+        const fill = row.querySelector(".rpsFill");
+        const pctEl = row.querySelector(".mono");
+        const pct = Math.round(p.probability * 100);
+        fill.style.width = `${pct}%`;
+        pctEl.textContent = `${pct}%`;
+      });
+    }
+
+    function bestPrediction(predictions){
+      return predictions.reduce((best, cur) => cur.probability > best.probability ? cur : best, predictions[0]);
+    }
+
+    function decideRps(userHand, aiHand){
+      if (userHand === aiHand) return "무승부";
+      const userWin =
+        (userHand === "주먹" && aiHand === "가위") ||
+        (userHand === "가위" && aiHand === "보") ||
+        (userHand === "보" && aiHand === "주먹");
+      return userWin ? "사용자 승리" : "AI 승리";
+    }
+
+    async function loadRpsModel(){
+      if (rpsModel) return;
+      if (!window.tmImage) throw new Error("tmImage library missing");
+      rpsResult.textContent = "모델 로딩 중...";
+      rpsModel = await tmImage.load(`${RPS_MODEL_BASE}model.json`, `${RPS_MODEL_BASE}metadata.json`);
+      initRpsScores(rpsModel.getClassLabels());
+    }
+
+    async function runRpsLoop(){
+      if (!rpsWebcam || !rpsModel) return;
+      rpsWebcam.update();
+      const predictions = await rpsModel.predict(rpsWebcam.canvas);
+      updateRpsScores(predictions);
+      const top = bestPrediction(predictions);
+      const pct = Math.round(top.probability * 100);
+      rpsLatest = top;
+      rpsNow.textContent = `현재 인식: ${RPS_EMOJI[top.className] || ""} ${top.className} (${pct}%)`;
+      if (pct < 60){
+        rpsResult.textContent = "손 모양이 잘 보이도록 카메라와 거리를 조금 조정해 주세요.";
+      } else {
+        rpsResult.textContent = "인식 안정화 완료. 아래 버튼으로 AI와 승부할 수 있어요.";
+      }
+      rpsLoopId = window.requestAnimationFrame(runRpsLoop);
+    }
+
+    async function startRpsCamera(){
+      try{
+        await loadRpsModel();
+        if (rpsWebcam) return;
+        rpsWebcam = new tmImage.Webcam(320, 320, true);
+        await rpsWebcam.setup();
+        await rpsWebcam.play();
+        rpsCamHost.innerHTML = "";
+        rpsCamHost.appendChild(rpsWebcam.canvas);
+        rpsStartBtn.disabled = true;
+        rpsStopBtn.disabled = false;
+        rpsMatchBtn.disabled = false;
+        rpsLoopId = window.requestAnimationFrame(runRpsLoop);
+      }catch(err){
+        rpsResult.textContent = "카메라 또는 모델 로딩에 실패했습니다. 권한 허용 후 다시 시도해 주세요.";
+      }
+    }
+
+    function stopRpsCamera(){
+      if (rpsLoopId) window.cancelAnimationFrame(rpsLoopId);
+      rpsLoopId = null;
+      if (rpsWebcam){
+        rpsWebcam.stop();
+        rpsWebcam = null;
+      }
+      rpsCamHost.textContent = "카메라 시작 버튼을 누르면 인식이 시작됩니다.";
+      rpsStartBtn.disabled = false;
+      rpsStopBtn.disabled = true;
+      rpsMatchBtn.disabled = true;
+      rpsNow.textContent = "현재 인식: -";
+      rpsResult.textContent = "카메라를 시작한 뒤 손동작을 보여주세요.";
+      initRpsScores(RPS_HANDS);
+    }
+
+    rpsStartBtn.addEventListener("click", startRpsCamera);
+    rpsStopBtn.addEventListener("click", stopRpsCamera);
+
+    rpsMatchBtn.addEventListener("click", () => {
+      if (!rpsLatest) return;
+      const userHand = rpsLatest.className;
+      const aiHand = RPS_HANDS[Math.floor(Math.random() * RPS_HANDS.length)];
+      const result = decideRps(userHand, aiHand);
+      rpsResult.textContent = `당신 ${RPS_EMOJI[userHand] || ""} ${userHand} vs AI ${RPS_EMOJI[aiHand] || ""} ${aiHand} → ${result}`;
+    });
+
+    window.addEventListener("beforeunload", stopRpsCamera);
+
     // 최초 상태
+    initRpsScores(RPS_HANDS);
     applyTheme(getInitialTheme());
     enableOutputs(false);
   </script>
