@@ -1253,6 +1253,45 @@
       return userWin ? "사용자 승리" : "AI 승리";
     }
 
+    async function waitForVideoReady(video, timeoutMs = 10000){
+      await new Promise((resolve, reject) => {
+        let done = false;
+        const onReady = () => {
+          if (done) return;
+          done = true;
+          cleanup();
+          resolve();
+        };
+        const onError = () => {
+          if (done) return;
+          done = true;
+          cleanup();
+          reject(new Error("video element error"));
+        };
+        const timer = window.setTimeout(() => {
+          if (done) return;
+          done = true;
+          cleanup();
+          reject(new Error("Timeout starting video source"));
+        }, timeoutMs);
+        const cleanup = () => {
+          window.clearTimeout(timer);
+          video.removeEventListener("loadedmetadata", onReady);
+          video.removeEventListener("canplay", onReady);
+          video.removeEventListener("error", onError);
+        };
+        video.addEventListener("loadedmetadata", onReady, { once: true });
+        video.addEventListener("canplay", onReady, { once: true });
+        video.addEventListener("error", onError, { once: true });
+      });
+
+      try{
+        await video.play();
+      }catch(_err){
+        // Some browsers may throw even though the stream is ready; continue.
+      }
+    }
+
     async function loadRpsModel(){
       if (rpsModel) return;
       if (!window.tmImage) throw new Error("tmImage library missing");
@@ -1299,8 +1338,9 @@
         rpsVideoEl.setAttribute("playsinline", "true");
         rpsVideoEl.muted = true;
         rpsVideoEl.autoplay = true;
+        rpsVideoEl.setAttribute("autoplay", "true");
         rpsVideoEl.srcObject = rpsStream;
-        await rpsVideoEl.play();
+        await waitForVideoReady(rpsVideoEl);
         rpsCamHost.innerHTML = "";
         rpsCamHost.appendChild(rpsVideoEl);
         rpsStartBtn.disabled = true;
@@ -1310,10 +1350,11 @@
       }catch(err){
         const reason = err && err.message ? err.message : "알 수 없는 오류";
         rpsResult.textContent = `카메라/모델 로딩 실패: ${reason}`;
+        stopRpsCamera(true);
       }
     }
 
-    function stopRpsCamera(){
+    function stopRpsCamera(keepStatusMessage = false){
       if (rpsLoopId) window.cancelAnimationFrame(rpsLoopId);
       rpsLoopId = null;
       if (rpsStream){
@@ -1326,7 +1367,7 @@
       rpsStopBtn.disabled = true;
       rpsMatchBtn.disabled = true;
       rpsNow.textContent = "현재 인식: -";
-      rpsResult.textContent = "카메라를 시작한 뒤 손동작을 보여주세요.";
+      if (!keepStatusMessage) rpsResult.textContent = "카메라를 시작한 뒤 손동작을 보여주세요.";
       initRpsScores(RPS_HANDS);
     }
 
