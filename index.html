@@ -218,7 +218,34 @@
       color: var(--muted);
     }
     .formStatus.error{ color:#fca5a5; }
-    #disqus_thread{ min-height: 180px; }
+    .commentsCard{
+      background: linear-gradient(160deg, rgba(8,12,24,.92), rgba(12,18,34,.92));
+      border: 1px solid rgba(255,255,255,.16);
+    }
+    .commentsCard .hd{ border-bottom:1px solid rgba(255,255,255,.14); }
+    .commentsCard .pill{
+      color: rgba(255,255,255,.94);
+      border-color: rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+    }
+    .commentsCard .sub,
+    .commentsCard noscript,
+    .commentsCard noscript a{
+      color: rgba(255,255,255,.90);
+    }
+    #disqus_thread{
+      min-height: 180px;
+      padding: 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:#fff;
+      color-scheme: dark;
+    }
+    body[data-theme="light"] .commentsCard{
+      background: linear-gradient(160deg, #0f172a, #111827);
+      border-color: rgba(255,255,255,.20);
+    }
     body[data-theme="light"] .formStatus.error{ color:#dc2626; }
     .hidden{ display:none; }
     body[data-theme="light"]{
@@ -388,7 +415,7 @@
       </section>
     </div>
 
-    <section class="card">
+    <section class="card commentsCard">
       <div class="hd">
         <div class="pill">🤝 제휴 문의</div>
         <p class="sub" style="margin-top:8px;">간단히 남겨주시면 확인 후 연락드릴게요.</p>
