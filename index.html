@@ -237,7 +237,8 @@
       text-align:center;
       font-size:13px;
     }
-    .rpsCam canvas{
+    .rpsCam canvas,
+    .rpsCam video{
       width:min(100%, 320px);
       height:auto;
       border-radius:12px;
@@ -1095,7 +1096,8 @@
     const RPS_HANDS = ["주먹", "가위", "보"];
     const RPS_EMOJI = { "주먹":"✊", "가위":"✌️", "보":"🖐️" };
     let rpsModel = null;
-    let rpsWebcam = null;
+    let rpsVideoEl = null;
+    let rpsStream = null;
     let rpsLoopId = null;
     let rpsLatest = null;
 
@@ -1260,9 +1262,8 @@
     }
 
     async function runRpsLoop(){
-      if (!rpsWebcam || !rpsModel) return;
-      rpsWebcam.update();
-      const predictions = await rpsModel.predict(rpsWebcam.canvas);
+      if (!rpsVideoEl || !rpsModel) return;
+      const predictions = await rpsModel.predict(rpsVideoEl);
       updateRpsScores(predictions);
       const top = bestPrediction(predictions);
       const pct = Math.round(top.probability * 100);
@@ -1285,17 +1286,23 @@
           throw new Error("현재 브라우저가 카메라 API를 지원하지 않습니다.");
         }
         await loadRpsModel();
-        if (rpsWebcam) return;
-        rpsWebcam = new tmImage.Webcam(320, 320, true);
+        if (rpsStream) return;
+        let stream = null;
         try{
-          await rpsWebcam.setup({ facingMode: "user" });
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
         }catch(_err){
-          // Some browsers/devices reject facingMode constraints; retry with default.
-          await rpsWebcam.setup();
+          // Some browsers/devices reject facingMode constraints; retry with generic video.
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         }
-        await rpsWebcam.play();
+        rpsStream = stream;
+        rpsVideoEl = document.createElement("video");
+        rpsVideoEl.setAttribute("playsinline", "true");
+        rpsVideoEl.muted = true;
+        rpsVideoEl.autoplay = true;
+        rpsVideoEl.srcObject = rpsStream;
+        await rpsVideoEl.play();
         rpsCamHost.innerHTML = "";
-        rpsCamHost.appendChild(rpsWebcam.canvas);
+        rpsCamHost.appendChild(rpsVideoEl);
         rpsStartBtn.disabled = true;
         rpsStopBtn.disabled = false;
         rpsMatchBtn.disabled = false;
@@ -1309,10 +1316,11 @@
     function stopRpsCamera(){
       if (rpsLoopId) window.cancelAnimationFrame(rpsLoopId);
       rpsLoopId = null;
-      if (rpsWebcam){
-        rpsWebcam.stop();
-        rpsWebcam = null;
+      if (rpsStream){
+        rpsStream.getTracks().forEach((t) => t.stop());
+        rpsStream = null;
       }
+      rpsVideoEl = null;
       rpsCamHost.textContent = "카메라 시작 버튼을 누르면 인식이 시작됩니다.";
       rpsStartBtn.disabled = false;
       rpsStopBtn.disabled = true;
