@@ -218,6 +218,7 @@
       color: var(--muted);
     }
     .formStatus.error{ color:#fca5a5; }
+    #disqus_thread{ min-height: 180px; }
     body[data-theme="light"] .formStatus.error{ color:#dc2626; }
     .hidden{ display:none; }
     body[data-theme="light"]{
@@ -418,6 +419,20 @@
           </div>
           <p class="formStatus hidden" id="partnerFormStatus" role="status" aria-live="polite"></p>
         </form>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="hd">
+        <div class="pill">💬 댓글</div>
+        <p class="sub" style="margin-top:8px;">의견이나 질문을 남겨주세요.</p>
+      </div>
+      <div class="bd">
+        <div id="disqus_thread"></div>
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
       </div>
     </section>
   </div>
@@ -1066,6 +1081,19 @@
     // 최초 상태
     applyTheme(getInitialTheme());
     enableOutputs(false);
+  </script>
+  <script>
+    var disqus_config = function () {
+      this.page.url = window.location.href;
+      this.page.identifier = window.location.pathname || "home";
+    };
+
+    (function() {
+      var d = document, s = d.createElement("script");
+      s.src = "https://aigangyi-keorikyulreom-jejag.disqus.com/embed.js";
+      s.setAttribute("data-timestamp", +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
   </script>
 </body>
 </html>
