@@ -212,6 +212,13 @@
       border: 1px dashed rgba(255,255,255,.22);
       background: rgba(0,0,0,.12);
     }
+    .formStatus{
+      margin-top:10px;
+      font-size:13px;
+      color: var(--muted);
+    }
+    .formStatus.error{ color:#fca5a5; }
+    body[data-theme="light"] .formStatus.error{ color:#dc2626; }
     .hidden{ display:none; }
     body[data-theme="light"]{
       --bg:#f3f6fb;
@@ -379,6 +386,40 @@
         </div>
       </section>
     </div>
+
+    <section class="card">
+      <div class="hd">
+        <div class="pill">🤝 제휴 문의</div>
+        <p class="sub" style="margin-top:8px;">간단히 남겨주시면 확인 후 연락드릴게요.</p>
+      </div>
+      <div class="bd">
+        <form id="partnershipForm" action="https://formspree.io/f/mdaldrva" method="POST">
+          <div class="row">
+            <div>
+              <label for="partnerName">이름</label>
+              <input id="partnerName" name="name" type="text" placeholder="홍길동" required />
+            </div>
+            <div>
+              <label for="partnerEmail">이메일</label>
+              <input id="partnerEmail" name="email" type="email" placeholder="name@company.com" required />
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <label for="partnerCompany">회사/조직명</label>
+            <input id="partnerCompany" name="company" type="text" placeholder="회사 또는 팀 이름" />
+          </div>
+          <div style="margin-top:10px;">
+            <label for="partnerMessage">문의 내용</label>
+            <textarea id="partnerMessage" name="message" placeholder="제휴 목적, 협업 방식, 일정 등을 적어주세요." required></textarea>
+          </div>
+          <input type="hidden" name="_subject" value="제휴 문의 접수" />
+          <div class="btnRow">
+            <button class="primary" id="partnerSubmitBtn" type="submit">📨 제휴 문의 보내기</button>
+          </div>
+          <p class="formStatus hidden" id="partnerFormStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -899,6 +940,9 @@
     const resetBtn = $("resetBtn");
     const copyOneLineBtn = $("copyOneLine");
     const themeToggleBtn = $("themeToggle");
+    const partnershipForm = $("partnershipForm");
+    const partnerSubmitBtn = $("partnerSubmitBtn");
+    const partnerFormStatus = $("partnerFormStatus");
 
     let current = null;
 
@@ -992,6 +1036,31 @@
     themeToggleBtn.addEventListener("click", () => {
       const next = document.body.dataset.theme === "dark" ? "light" : "dark";
       applyTheme(next);
+    });
+
+    partnershipForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      partnerFormStatus.classList.add("hidden");
+      partnerFormStatus.classList.remove("error");
+      partnerSubmitBtn.disabled = true;
+
+      try{
+        const res = await fetch(partnershipForm.action, {
+          method: "POST",
+          body: new FormData(partnershipForm),
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!res.ok) throw new Error("Form submission failed");
+        partnershipForm.reset();
+        partnerFormStatus.textContent = "문의가 정상 접수되었습니다. 빠르게 확인 후 연락드릴게요.";
+      }catch(err){
+        partnerFormStatus.textContent = "전송에 실패했습니다. 잠시 후 다시 시도해 주세요.";
+        partnerFormStatus.classList.add("error");
+      }finally{
+        partnerFormStatus.classList.remove("hidden");
+        partnerSubmitBtn.disabled = false;
+      }
     });
 
     // 최초 상태
